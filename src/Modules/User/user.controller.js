@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import { nanoid } from "nanoid";
 import otpGenerator from "otp-generator";
 import { cloudinaryConfig, defineUserType, ErrorClass, systemRoles, uploadFile } from "../../Utils/index.js";
-import {User, Admin } from "../../../DB/Models/index.js";
+import {User, Admin, AdminChangeLog } from "../../../DB/Models/index.js";
 
 /**
  * @api {post} /users/register Register User
@@ -94,7 +94,7 @@ export const verifyEmail = async (req, res, next) => {
     const data = jwt.verify(confirmationToken, process.env.CONFIRM_TOKEN);
     const user=await User.findOneAndUpdate({email:data?.user.email,isEmailVerified: false},{ isEmailVerified: true },
         { new: true }).select('-password -__v');
-    if (!confirmedUser) {
+    if (!user) {
         return next(
             new ErrorClass("Invalid credentials", 400, "not confirmed")
         );
@@ -259,12 +259,31 @@ export const resetPassword = async (req, res, next) => {
     res.status(200).json({ message: "password reset successfully" });
 };
 
-// export const softDeleteUser = async (req, res, next) => {
-//     const {authUser}=req;
-//     const user=await User.findByIdAndUpdate(authUser._id,{isMarkedAsDeleted:true,status:false},{new:true})
-//     if(!user)
-//         return next(
-//             new ErrorClass("ther is no user with this email", 400, "user not found")
-//         );
-//     return res.status(200).json({message:"user deleted"})
-// }
+/**
+ * @api {post} /users/soft-delete-user  soft delete user or block user
+ */
+export const softDeleteUser = async (req, res, next) => {
+    const {authUser}=req;
+    const {email}=req.body;
+    const user=await User.findOneAndUpdate({email:email,isMarkedAsDeleted:false},{isMarkedAsDeleted:true,status:false},{new:true}).select('-password -__v');
+    if(!user)
+        return next(
+            new ErrorClass("ther is no user with this email", 400, "user not found or already deleted")
+        );
+    const logUpdateObject={userEmail:email,updatedBy:authUser._id,action:"SOFT-DELETE",changes:{user}};
+    await AdminChangeLog.create(logUpdateObject);
+    return res.status(200).json({message:"user deleted"})
+}
+
+export const unblockUser = async (req, res, next) => {
+    const {authUser}=req;
+    const {email}=req.body;
+    const user=await User.findOneAndUpdate({email:email,isMarkedAsDeleted:true},{isMarkedAsDeleted:false},{new:true}).select('-password -__v');
+    if(!user)
+        return next(
+            new ErrorClass("ther is no user with this email", 400, "user not found or already unblocked")
+        );
+    const logUpdateObject={userEmail:email,updatedBy:authUser._id,action:"UPDATE",changes:{action:"unblock",user}};
+    await AdminChangeLog.create(logUpdateObject);
+    return res.status(200).json({message:"user unblocked"})
+}

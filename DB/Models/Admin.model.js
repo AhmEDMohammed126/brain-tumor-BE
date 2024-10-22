@@ -1,6 +1,4 @@
-import { hashSync } from "bcrypt";
 import mongoose from "../global-setup.js";
-import { User } from "./index.js";
 import { systemRoles } from "../../src/Utils/index.js";
 const { Schema, model } = mongoose;
 

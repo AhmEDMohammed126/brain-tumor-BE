@@ -23,6 +23,9 @@ export const generalRules = {
   },
   email: Joi.string().email({
     minDomainSegments: 2,
+  }).messages({
+    'string.email': 'Email must be a valid email',
+    'any.required': 'Email is required'
   }),
   password: Joi.string()
     .pattern(

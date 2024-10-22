@@ -35,6 +35,9 @@ export const auth = () => {
     // find user by userId 
     const isUserExists=await defineUserType(data);
     // add the user data in req object
+    if (!isUserExists) {
+        return next(new ErrorClass("user not found", 400, "you are not logged in"));
+    }
     req.authUser = isUserExists;
     next();
 };

@@ -18,7 +18,6 @@ export const validationMiddleware = (schema) => {
         const validationResult = schema[key]?.validate(req[key], {
             abortEarly: false,
         });
-
         // If there is an error, push the error details to the validationErrors array
         if (validationResult?.error) {
         validationErrors.push(validationResult?.error?.details);
