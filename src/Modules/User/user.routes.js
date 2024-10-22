@@ -10,9 +10,9 @@ const userRouter=Router();
 const {errorHandler,auth,multerHost}=middlewares;
 
 userRouter.post(
-    "/register",
+    "/registerAdmin",
     errorHandler(multerHost({ allowedExtensions:extensions.Images }).single("image")),
-    errorHandler(controller.registerUser)
+    errorHandler(controller.registerAdmin)
 );
 
 userRouter.get(

@@ -3,13 +3,13 @@ import { compareSync, hashSync } from "bcrypt"
 import jwt from "jsonwebtoken";
 import { nanoid } from "nanoid";
 import otpGenerator from "otp-generator";
-import { cloudinaryConfig, ErrorClass, systemRoles, uploadFile } from "../../Utils/index.js";
+import { cloudinaryConfig, defineUserType, ErrorClass, systemRoles, uploadFile } from "../../Utils/index.js";
 import {User, Admin } from "../../../DB/Models/index.js";
 
 /**
- * @api {post} /api/users/register Register User
+ * @api {post} /users/register Register User
  */
-export const registerUser = async(req, res,next) =>{
+export const registerAdmin = async(req, res,next) =>{
     const {firstName,lastName,email,password,userType,gender,age,phone}=req.body
 
     // check if the email is already registered
@@ -93,19 +93,14 @@ export const verifyEmail = async (req, res, next) => {
     //verifing the token
     const data = jwt.verify(confirmationToken, process.env.CONFIRM_TOKEN);
     const user=await User.findOneAndUpdate({email:data?.user.email,isEmailVerified: false},{ isEmailVerified: true },
-        { new: true })
-    const confirmedUser = await Admin.findOneAndUpdate(
-        { _id: data?.user._id, isEmailVerified: false },
-        { isEmailVerified: true },
-        { new: true }
-    );
+        { new: true }).select('-password -__v');
     if (!confirmedUser) {
         return next(
             new ErrorClass("Invalid credentials", 400, "not confirmed")
         );
     }
       // response
-    res.status(200).json({ message: "User email successfully confirmed ", confirmedUser });
+    res.status(200).json({ message: "User email successfully confirmed ", user });
 };
 
 /***
@@ -133,21 +128,13 @@ export const login = async (req, res, next) => {
         );
     }
     //select user 
-    let Ouser=null;
-    if(user.userType==systemRoles.ADMIN){
-        Ouser=await Admin.findOne({email,isMarkedAsDeleted:false})
-    }
-    else if(user.userType==systemRoles.DOCTOR){
-        //Ouser=await Doctor.findOne({email,isEmailVerified:true,isMarkedAsDeleted:false})
-    }
-    else if(user.userType==systemRoles.PATIENT){
-       // Ouser=await Patient.findOne({email,isEmailVerified:true,isMarkedAsDeleted:false})
-    }
+    const Ouser=await defineUserType(user);
+
     //update status
     Ouser.status = true;
     await Ouser.save();
     // generate the access token
-    const token = jwt.sign({ userId: Ouser._id,userType:Ouser.userType, }, process.env.LOGIN_SECRET,{expiresIn: "7d"});
+    const token = jwt.sign({ userId: Ouser._id,userType:Ouser.userType }, process.env.LOGIN_SECRET,{expiresIn: "7d"});
     // response
     res.status(200).json({ message: "Login success", token });
 };
@@ -271,3 +258,13 @@ export const resetPassword = async (req, res, next) => {
     // Return a success response
     res.status(200).json({ message: "password reset successfully" });
 };
+
+// export const softDeleteUser = async (req, res, next) => {
+//     const {authUser}=req;
+//     const user=await User.findByIdAndUpdate(authUser._id,{isMarkedAsDeleted:true,status:false},{new:true})
+//     if(!user)
+//         return next(
+//             new ErrorClass("ther is no user with this email", 400, "user not found")
+//         );
+//     return res.status(200).json({message:"user deleted"})
+// }

@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { ErrorClass, systemRoles } from "../Utils/index.js";
+import { defineUserType, ErrorClass, systemRoles } from "../Utils/index.js";
 import { Admin } from "../../DB/Models/index.js";
 
 
@@ -32,22 +32,8 @@ export const auth = () => {
         new ErrorClass("Invalid token payload", 400, "Invalid token payload")
     );
     }
-    // find user by userId
-    let isUserExists=null;
-    if(data?.userType==systemRoles.ADMIN){
-        isUserExists=await Admin.findOne({_id:data?.userId,isEmailVerified:true,isMarkedAsDeleted:false})
-    }
-    else if(isUserExists.userType==systemRoles.DOCTOR){
-        //isUserExists=await Doctor.findOne({email,isEmailVerified:true,isMarkedAsDeleted:false})
-    }
-    else if(isUserExists.userType==systemRoles.PATIENT){
-       // isUserExists=await Patient.findOne({email,isEmailVerified:true,isMarkedAsDeleted:false})
-    }
-    // const isUserExists = await User.findById(data?.userId);
-    if (!isUserExists || !isUserExists?.status) {
-        return next(new ErrorClass("User not found or you must logIn", 404, "User not found"));
-    }
-    
+    // find user by userId 
+    const isUserExists=await defineUserType(data);
     // add the user data in req object
     req.authUser = isUserExists;
     next();
