@@ -1,6 +1,6 @@
 import { json } from "express";
 import cors from "cors";
-// import * as router from "./src/Modules/index.js";
+import * as router from "./src/Modules/index.js";
 import { globaleResponse } from "./src/Middlewares/index.js";
 
 
@@ -10,7 +10,7 @@ export const routerHandler = (app) => {
     app.use(json());
 
     //REST-API
-    // app.use("/users", router.userRouter);
+    app.use("/users",router.userRouter)
     
     app.use("*",(req,res,next)=>
         res.status(404).json({message:"Route Not Found"})
