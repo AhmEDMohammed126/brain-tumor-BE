@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
-import { ErrorClass } from "../Utils/index.js";
-import { User } from "../../DB/Models/index.js";
+import { ErrorClass, systemRoles } from "../Utils/index.js";
+import { Admin } from "../../DB/Models/index.js";
 
 
 /**
@@ -33,14 +33,24 @@ export const auth = () => {
     );
     }
     // find user by userId
-    const isUserExists = await User.findById(data?.userId);
+    let isUserExists=null;
+    if(data?.userType==systemRoles.ADMIN){
+        isUserExists=await Admin.findOne({_id:data?.userId,isEmailVerified:true,isMarkedAsDeleted:false})
+    }
+    else if(isUserExists.userType==systemRoles.DOCTOR){
+        //isUserExists=await Doctor.findOne({email,isEmailVerified:true,isMarkedAsDeleted:false})
+    }
+    else if(isUserExists.userType==systemRoles.PATIENT){
+       // isUserExists=await Patient.findOne({email,isEmailVerified:true,isMarkedAsDeleted:false})
+    }
+    // const isUserExists = await User.findById(data?.userId);
     if (!isUserExists || !isUserExists?.status) {
         return next(new ErrorClass("User not found or you must logIn", 404, "User not found"));
     }
+    
     // add the user data in req object
     req.authUser = isUserExists;
     next();
 };
 };
 
-//modify token and add user type to it

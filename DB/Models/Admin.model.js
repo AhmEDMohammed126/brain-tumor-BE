@@ -43,10 +43,6 @@ const adminSchema = new Schema({
         type:String,
         required:true
     },
-    isEmailVerified:{
-        type:Boolean,
-        default:false
-    },
     isMarkedAsDeleted:{
         type:Boolean,
         default:false
