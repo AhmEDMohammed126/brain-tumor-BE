@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
-import { ErrorClass } from "../Utils/index.js";
-import { User } from "../../DB/Models/index.js";
+import { defineUserType, ErrorClass, systemRoles } from "../Utils/index.js";
+import { Admin } from "../../DB/Models/index.js";
 
 
 /**
@@ -32,15 +32,14 @@ export const auth = () => {
         new ErrorClass("Invalid token payload", 400, "Invalid token payload")
     );
     }
-    // find user by userId
-    const isUserExists = await User.findById(data?.userId);
-    if (!isUserExists || !isUserExists?.status) {
-        return next(new ErrorClass("User not found or you must logIn", 404, "User not found"));
-    }
+    // find user by userId 
+    const isUserExists=await defineUserType(data);
     // add the user data in req object
+    if (!isUserExists) {
+        return next(new ErrorClass("user not found", 400, "you are not logged in"));
+    }
     req.authUser = isUserExists;
     next();
 };
 };
 
-//modify token and add user type to it
