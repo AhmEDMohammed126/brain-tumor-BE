@@ -270,7 +270,7 @@ export const softDeleteUser = async (req, res, next) => {
         return next(
             new ErrorClass("ther is no user with this email", 400, "user not found or already deleted")
         );
-    const logUpdateObject={userEmail:email,updatedBy:authUser._id,action:"SOFT-DELETE",changes:{user}};
+    const logUpdateObject={userEmail:email,updatedBy:authUser._id,action:"SOFT-DELETE",changes:{action:"block",user}};
     await AdminChangeLog.create(logUpdateObject);
     return res.status(200).json({message:"user deleted"})
 }
