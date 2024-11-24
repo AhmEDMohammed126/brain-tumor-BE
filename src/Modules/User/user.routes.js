@@ -12,6 +12,7 @@ const {errorHandler,auth,multerHost}=middlewares;
 userRouter.post(
     "/registerAdmin",
     errorHandler(multerHost({ allowedExtensions:extensions.Images }).single("image")),
+    middlewares.authorizationMiddleware([systemRoles.ADMIN]),
     errorHandler(validationMiddleware(validation.registeradminSchema)),
     errorHandler(controller.registerAdmin)
 );

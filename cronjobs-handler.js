@@ -1,9 +1,8 @@
-// import { cronJobOne, productRatingCron } from "./src/Utils/crons.uitls.js";
-// import { gracefulShutdown } from "node-schedule";
+import { doctorRatingCron } from "./src/Utils/crons.uitls.js";
+import { gracefulShutdown } from "node-schedule";
 
-// export const cronHandler=()=>{
-//     //cron jobs
-//     cronJobOne();
-//     productRatingCron();
-//     //gracefulShutdown();
-// }
+export const cronHandler=()=>{
+    //cron jobs
+    doctorRatingCron();
+    //gracefulShutdown();
+}

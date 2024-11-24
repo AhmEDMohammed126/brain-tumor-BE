@@ -1,8 +1,7 @@
 import Joi from "joi";
 import { generalRules ,systemRoles} from "../../Utils/index.js";
 
-export const registeradminSchema ={//it is not work
-    //TODO : fix why it is not work
+export const registeradminSchema ={
     body: Joi.object({
         firstName: Joi.string().min(2).max(20).required(),
         lastName: Joi.string().min(2).max(20).required(),

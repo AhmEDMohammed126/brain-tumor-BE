@@ -1,6 +1,7 @@
 import { hashSync } from "bcrypt";
 import { systemRoles } from "../../src/Utils/system-roles.utils.js";
 import mongoose from "../global-setup.js";
+import { Badges } from "../../src/Utils/enums.utils.js";
 const { Schema, model } = mongoose;
 
 const doctorSchema = new Schema({
@@ -40,6 +41,10 @@ const doctorSchema = new Schema({
         type:Number,
         required:true
     },
+    badges:{
+        type:[String],
+        enum: Object.values(Badges),
+    },
     gender:{
         type:String,
         required:true,
@@ -68,31 +73,39 @@ const doctorSchema = new Schema({
         }
     },
     customId:String,
-    provider:{
-        type:String,
-        enum:['google','system'],
-        default:'system'
-    },
+    // provider:{
+    //     type:String,
+    //     enum:['google','system'],
+    //     default:'system'
+    // },
     isLogedIn:{
         type:Boolean,
         default:false
     }
-},{timestamps:true})
+},{timestamps:true,toJSON:{virtuals:true},toObject:{virtuals:true}});
 
 //============document middleware=============
-// userSchema.pre("save",function(){
-    
-//     if(this.isModified("password")){    
-//         this.password=hashSync(this.password,+process.env.SALT_ROUNDS)
-//     }
-// });
+doctorSchema.pre("save",function(){
+    if(this.isModified("password")){    
+        this.password=hashSync(this.password,+process.env.SALT_ROUNDS)
+    }
+});
 
-// //==================query middleware=============
-// userSchema.pre(["updateOne"],function(){
-//     if(this.isModified("password")){
-//         this.password=hashSync(this.password,+process.env.SALT_ROUNDS)
-//     }
-//     console.log(this.getQuery());//this.getQuery() or this.getFilter() return the condtions wich i used to find user like _id
+//==================query middleware=============
+doctorSchema.pre(["updateOne"],function(){
+    if(this.isModified("password")){
+        this.password=hashSync(this.password,+process.env.SALT_ROUNDS)
+    }
+    console.log(this.getQuery());//this.getQuery() or this.getFilter() return the condtions wich i used to find user like _id
     
-// })
+})
+
+doctorSchema.virtual('Reviews',
+    {
+        ref:'Review',
+        localField:'_id',
+        foreignField:'doctorId'
+    }
+);
+
 export const Doctor = mongoose.models.Doctor ||model("Doctor", doctorSchema);

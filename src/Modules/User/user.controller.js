@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import { nanoid } from "nanoid";
 import otpGenerator from "otp-generator";
 import { cloudinaryConfig, defineUserType, ErrorClass, systemRoles, uploadFile } from "../../Utils/index.js";
-import {User, Admin, AdminChangeLog } from "../../../DB/Models/index.js";
+import {User, Admin, AdminChangeLog, Doctor, Patient } from "../../../DB/Models/index.js";
 
 /**
  * @api {post} /users/register Register User
@@ -270,7 +270,18 @@ export const softDeleteUser = async (req, res, next) => {
         return next(
             new ErrorClass("ther is no user with this email", 400, "user not found or already deleted")
         );
-    const logUpdateObject={userEmail:email,updatedBy:authUser._id,action:"SOFT-DELETE",changes:{user}};
+    //mark as deleted in admins
+    const admin=await Admin.findOneAndUpdate({email:email,isMarkedAsDeleted:false},{isMarkedAsDeleted:true,status:false},{new:true});
+    if(!admin){
+        //mark as deleted in doctors
+        const doctor=await Doctor.findOneAndUpdate({email:email,isMarkedAsDeleted:false},{isMarkedAsDeleted:true,status:false},{new:true});
+        if(!doctor){
+                //mark as deleted in patients
+                await Patient.findOneAndUpdate({email:email,isMarkedAsDeleted:false},{isMarkedAsDeleted:true,status:false},{new:true});
+            }
+        }
+    //update change Log
+    const logUpdateObject={userEmail:email,updatedBy:authUser._id,action:"SOFT-DELETE",changes:{action:"block",user}};
     await AdminChangeLog.create(logUpdateObject);
     return res.status(200).json({message:"user deleted"})
 }
@@ -283,6 +294,17 @@ export const unblockUser = async (req, res, next) => {
         return next(
             new ErrorClass("ther is no user with this email", 400, "user not found or already unblocked")
         );
+    //unmark as deleted in admins
+    const admin=await Admin.findOneAndUpdate({email:email,isMarkedAsDeleted:true},{isMarkedAsDeleted:false},{new:true});
+    if(!admin){
+        //unmark as deleted in doctors
+        const doctor=await Doctor.findOneAndUpdate({email:email,isMarkedAsDeleted:true},{isMarkedAsDeleted:false},{new:true});
+        if(!doctor){
+                //unmark as deleted in patients
+                await Patient.findOneAndUpdate({email:email,isMarkedAsDeleted:true},{isMarkedAsDeleted:false},{new:true});
+            }
+        }
+    //update change Log
     const logUpdateObject={userEmail:email,updatedBy:authUser._id,action:"UPDATE",changes:{action:"unblock",user}};
     await AdminChangeLog.create(logUpdateObject);
     return res.status(200).json({message:"user unblocked"})
