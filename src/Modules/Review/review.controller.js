@@ -1,5 +1,5 @@
 import { Doctor,Review } from "../../../DB/Models/index.js";
-import { ErrorClass, OrdeStatus, ReviewStatus } from "../../Utils/index.js";
+import { ErrorClass, ReviewStatus } from "../../Utils/index.js";
 
 /**
  * @api {post} /reviews/addReview Add review

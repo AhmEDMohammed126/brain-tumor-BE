@@ -4,3 +4,4 @@ export * from './user.model.js';
 export * from './Patient.model.js';
 export * from './AdminChangeLog.model.js';
 export * from './review.model.js';
+export * from './address.model.js';

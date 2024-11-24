@@ -85,14 +85,14 @@ const doctorSchema = new Schema({
 },{timestamps:true,toJSON:{virtuals:true},toObject:{virtuals:true}});
 
 //============document middleware=============
-userSchema.pre("save",function(){
+doctorSchema.pre("save",function(){
     if(this.isModified("password")){    
         this.password=hashSync(this.password,+process.env.SALT_ROUNDS)
     }
 });
 
 //==================query middleware=============
-userSchema.pre(["updateOne"],function(){
+doctorSchema.pre(["updateOne"],function(){
     if(this.isModified("password")){
         this.password=hashSync(this.password,+process.env.SALT_ROUNDS)
     }
