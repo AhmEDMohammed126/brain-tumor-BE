@@ -1,7 +1,7 @@
 import Joi from "joi";
 import { generalRules } from "../../Utils/index.js";
 
-export const addAddressSchema ={
+export const addClinicSchema ={
     body: Joi.object({
         country: Joi.string().min(2).max(20).required(),
         city: Joi.string().min(2).max(20).required(),
@@ -12,24 +12,14 @@ export const addAddressSchema ={
     })
 };
 
-export const getAllAddressesSchema = {
+export const getAllClinicSchema = {
     headers: Joi.object({
         token: Joi.string().required(),
         ...generalRules.headers,
     }),
 };
 
-export const getAddressByIdSchema = {
-    headers: Joi.object({
-        token: Joi.string().required(),
-        ...generalRules.headers,
-    }),
-    params:Joi.object({
-        id:generalRules._id.required()
-    }),
-};
-
-export const softDeleteAddressSchema={
+export const getClinicByIdSchema = {
     headers: Joi.object({
         token: Joi.string().required(),
         ...generalRules.headers,
@@ -39,7 +29,17 @@ export const softDeleteAddressSchema={
     }),
 };
 
-export const deleteAddressSchema={
+export const softDeleteClinicSchema={
+    headers: Joi.object({
+        token: Joi.string().required(),
+        ...generalRules.headers,
+    }),
+    params:Joi.object({
+        id:generalRules._id.required()
+    }),
+};
+
+export const deleteClinicSchema={
     headers: Joi.object({
         token: Joi.string().required(),
         ...generalRules.headers,
@@ -50,7 +50,7 @@ export const deleteAddressSchema={
 };
 
 
-export const editAddressScheme = {
+export const editClinicSchema = {
     headers: Joi.object({
         token: Joi.string().required(),
         ...generalRules.headers,
@@ -63,7 +63,6 @@ export const editAddressScheme = {
         city: Joi.string().min(3).max(25).alphanum().optional(),
         buildingNumber: Joi.number().integer().min(0),
         floorNumber: Joi.number().integer().min(0).max(100),
-        addressLable: Joi.string().alphanum().optional(),
         isDefault: Joi.boolean(),
     }),
 };

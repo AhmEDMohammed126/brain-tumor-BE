@@ -120,32 +120,3 @@ export const unblockUserSchema = {
 //     ...generalRules.headers,
 //   }),
 // };
-
-// export const recoveryEmailSchema = {
-//   body: Joi.object({
-//     recoveryEmail:Joi.string().email({
-//       minDomainSegments: 2,
-//     }).required()
-//   }),
-//   headers: Joi.object({
-//     token: Joi.string().required(),
-//     ...generalRules.headers,
-//   }),
-// };
-
-
-// export const forgetPassword = {
-//   body: Joi.object({
-//     email:Joi.string().email({
-//       minDomainSegments: 2,
-//     }).required()
-//   }),
-// };
-
-// export const changePassword = {
-//   body: Joi.object({
-//     email:generalRules.email.required(),
-//     password:generalRules.password.required(),
-//     otp: Joi.string().required()
-//   }),
-// };
