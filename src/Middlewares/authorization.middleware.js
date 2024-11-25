@@ -10,7 +10,7 @@ export const authorizationMiddleware = (allowedRoles) => {
     // Get the loggedIn user from the request authUser from auth middleware
     const user = req.authUser;
     // Check if the allowed roles array includes the user role
-    if (!allowedRoles.includes(user.userType)) {
+    if (!allowedRoles.includes(user?.userType)) {
         return next(
         new ErrorClass(
             "Authorization Error",

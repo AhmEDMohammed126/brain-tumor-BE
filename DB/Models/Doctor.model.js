@@ -2,14 +2,17 @@ import { hashSync } from "bcrypt";
 import { systemRoles } from "../../src/Utils/system-roles.utils.js";
 import mongoose from "../global-setup.js";
 import { Badges } from "../../src/Utils/enums.utils.js";
+
 const { Schema, model } = mongoose;
 
 const doctorSchema = new Schema({
-    userName: {
+    firstName: {
         type: String,
         required: true,
-        trim: true,
-        unique: true,
+    },
+    lastName: {
+        type: String,
+        required: true,
     },
     email:{
         type:String,
@@ -26,6 +29,11 @@ const doctorSchema = new Schema({
         type:String,
         required:true
     },
+    DOB:{
+        //1990-05-15
+        type:Date,
+        required:true
+    },
     passwordResetExpires:Date,
     verifyPasswordReset:Boolean,
     status: {
@@ -39,7 +47,6 @@ const doctorSchema = new Schema({
     },
     age:{
         type:Number,
-        required:true
     },
     badges:{
         type:[String],
@@ -50,8 +57,16 @@ const doctorSchema = new Schema({
         required:true,
         enum:['male','female']
     },
-    phone:{
+    bio:{
         type:String,
+        required:true
+    },
+    isDoctorVerified:{
+        type:Boolean,
+        default:false
+    },
+    medicalLicense:{
+        type:Number,
         required:true
     },
     isEmailVerified:{
@@ -72,16 +87,31 @@ const doctorSchema = new Schema({
             required:true
         }
     },
+    certifications:{
+        secure_url:{
+            type:String,
+            required:true
+        },
+        public_id:{
+            type:String,
+            required:true
+        }
+    },
     customId:String,
-    // provider:{
-    //     type:String,
-    //     enum:['google','system'],
-    //     default:'system'
-    // },
-    isLogedIn:{
-        type:Boolean,
-        default:false
-    }
+    experienceYears:{
+        type:Number,
+        required:true
+    },
+    patients:[
+        {
+            patientId:{
+                type:Schema.Types.ObjectId,
+                ref:"Patient",
+                required:true
+            },
+        }
+    ],
+    rating:Number
 },{timestamps:true,toJSON:{virtuals:true},toObject:{virtuals:true}});
 
 //============document middleware=============
@@ -105,6 +135,13 @@ doctorSchema.virtual('Reviews',
         ref:'Review',
         localField:'_id',
         foreignField:'doctorId'
+    }
+);
+doctorSchema.virtual('Clinics',
+    {
+        ref:'Clinic',
+        localField:'_id',
+        foreignField:'userId'
     }
 );
 
