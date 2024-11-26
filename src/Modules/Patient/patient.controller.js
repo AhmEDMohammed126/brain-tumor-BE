@@ -4,8 +4,7 @@ import { compareSync, hashSync } from "bcrypt"
 import jwt from "jsonwebtoken";
 import { nanoid } from "nanoid";
 import otpGenerator from "otp-generator";
-import { ErrorClass, uploadFile } from "../../Utils/index.js";
-
+import { ApiFeatures, ErrorClass, uploadFile } from "../../Utils/index.js";
 
 export const registerPatient = async(req, res,next) =>{
     const {firstName,lastName,email,password,DOB,gender,phone,address,listOfEmergency,userType}=req.body
@@ -43,7 +42,6 @@ export const registerPatient = async(req, res,next) =>{
         firstName,
         lastName,
         email,
-        password,
         DOB,
         age,
         gender,
@@ -111,3 +109,129 @@ export const verifyEmail = async (req, res, next) => {
     // response
     res.status(200).json({ message: "User email successfully confirmed ", user });
 };
+
+/**
+ * @api {get} /patients/getPatients get all patients
+ * @returns  {object} return response {message, data}
+ * @description get all patients
+ */
+
+
+export const getPatients=async (req, res, next) => {
+    const {page=1,limit=2,sort,...filters}=req.query;
+    const model = Patient
+    const ApiFeaturesInstance = new ApiFeatures(model,req.query)
+    .pagination()
+    .filter()
+    .sort();
+    const patients = await ApiFeaturesInstance.mongooseQuery;
+    if (!patients) {
+        return next(
+            new ErrorClass("No patients found", 404, "patients not found")
+        );
+    }
+    res.status(200).json({ message: "All Patients", data: patients });
+}
+
+/**
+ * @api {get} /patients/getInfo get loged user info
+ * @returns {object} return response {message, data}
+ */
+
+export const getInfo = async (req, res, next) => {
+    //destruct user from req
+    const { authUser } = req;
+    //find user
+    const patient = await Patient.findById(authUser._id).select('-__v');
+    //response
+    res.status(200).json({ message: "Patient", data: patient });
+};
+
+/**
+ * @api {get} /Patients/getPatient/:patientId get patient by id
+ * @returns {object} return response {message, data}
+ */
+export const getPatient = async (req, res, next) => {
+    const { patientId } = req.params;
+    const patient = await Patient.findById(patientId).select('-__v');
+    if (!patient) {
+        return next(
+            new ErrorClass("No patient found", 404, "patient not found")
+        );
+    }
+    res.status(200).json({ message: "Patient", data: patient });
+}
+
+/**
+ * @api {get} /patients/getBlockedPatients
+ * @returns  {object} return response {message, data}
+ * @description get bloched  patient
+ * */
+
+export const getBlockedPatients = async (req, res, next) => {
+    const {page=1,limit=2,sort,...filters}=req.query;
+    const model = Patient
+    req.query.isMarkedAsDeleted =true; 
+    const ApiFeaturesInstance = new ApiFeatures(model,req.query)
+    .pagination()
+    .filter()
+    .sort();
+    const patients = await ApiFeaturesInstance.mongooseQuery;
+    // const patients = await Patient.find({ isMarkedAsDeleted: true}).select('-__v');
+    if (!patients) {
+        return next(
+            new ErrorClass("No blocked patients found", 404, " patients not found")
+        );
+    }
+    res.status(200).json({ message: "All Blocked Patients", data: patients });
+};
+
+/**
+ * @api {put} /patients/updatePatient/:patientId update patientid update patient
+ */
+export const updateAccount=async(req, res,next) => {
+    const {firstName,lastName,email,gender,phone,address,listOfEmergency}=req.body;
+    const {authUser}=req;
+    const isEmailExist=await User.findOne({email});
+    if(isEmailExist) return res.status(400).json({message:"email already exist"})
+    const patient=await Patient.findById(authUser._id);
+    
+    if(req.file){
+        const Newpublic_id = patient.profilePic.public_id.split(`${patient.customId}/`)[1];
+        const {secure_url}=await uploadFile({
+            file: req.file.path,
+            folder: `${process.env.UPLOADS_FOLDER}/Patient/profile-pictures/${patient.customId}`,
+            publicId: Newpublic_id
+            }
+        )
+        patient.profilePic.secure_url=secure_url   
+    }     
+
+    patient.firstName=firstName || patient.firstName;
+    patient.lastName=lastName || patient.lastName;
+    patient.email=email || patient.email;
+    patient.gender=gender || patient.gender;
+    patient.phone=phone || patient.phone;
+    patient.address=address || patient.address;
+    patient.listOfEmergency=listOfEmergency || patient.listOfEmergency;
+    if(email){
+        const user=await User.findOne({email:authUser.email});
+        user.email=email;
+        user.isEmailVerified=false;
+        patient.isEmailVerified = false;
+        const confirmationToken=jwt.sign({user:patient},process.env.CONFIRM_TOKEN,{expiresIn:"1h"});
+        const confirmationLink = `${req.protocol}://${req.headers.host}/patients/confirmation/${confirmationToken}`;
+        const isEmailSent=await sendEmailService({
+            to:email,
+            subject:"verify your email",
+            htmlMessage:`<a href=${confirmationLink}>please verify your account</a>`
+        })
+        if(isEmailSent.rejected.length) 
+            return next(
+                new ErrorClass("Invalid credentials", 400, "email sending is failed")
+            ); 
+        await user.save();
+    }
+    await patient.save();
+    return res.status(200).json({message:"updated"})
+}

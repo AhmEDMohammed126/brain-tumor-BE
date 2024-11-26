@@ -1,7 +1,7 @@
 import Joi from "joi";
 import { generalRules, systemRoles } from "../../Utils/index.js";
+
 export const registerDoctorSchema = {
-    
     body:Joi.object({
     firstName: Joi.string().min(3).max(50).required(),
     lastName: Joi.string().min(3).max(50).required(),
@@ -37,5 +37,33 @@ export const registerDoctorSchema = {
 export const verifySchema = {
     params: Joi.object({
         confirmationToken: Joi.string().required(),
+    }),
+};
+
+export const getDoctorSchema ={
+    params : Joi.object({
+        doctorId:generalRules._id.required(),
+    })
+};
+
+export const updateDoctorSchema ={
+    body:Joi.object({
+        firstName: Joi.string().min(3).max(50).optional(),
+        lastName: Joi.string().min(3).max(50).optional(),
+        email:  generalRules.email.optional(),
+        gender: Joi.string().valid('male', 'female').optional(),
+        bio: Joi.string().optional(),
+        medicalLicense: Joi.number().optional(),
+        experienceYears: Joi.number().min(0).optional(),
+    })
+};
+
+export const approveOrRejectRequestSchema = {
+    params: Joi.object({
+        doctorId: generalRules._id.required(),
+    }),
+    body: Joi.object({
+        status: Joi.boolean().required(),
+        reasons: Joi.string().optional(),
     }),
 };
