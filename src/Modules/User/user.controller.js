@@ -1,10 +1,10 @@
 import { sendEmailService } from "../../../services/send-email.service.js"
-import { compareSync, hashSync } from "bcrypt"
+import { compareSync } from "bcrypt"
 import jwt from "jsonwebtoken";
 import { nanoid } from "nanoid";
 import otpGenerator from "otp-generator";
-import { cloudinaryConfig, defineUserType, ErrorClass, systemRoles, uploadFile } from "../../Utils/index.js";
-import {User, Admin, AdminChangeLog, Doctor, Patient } from "../../../DB/Models/index.js";
+import { defineUserType, ErrorClass, uploadFile } from "../../Utils/index.js";
+import {User, Admin, AdminChangeLog } from "../../../DB/Models/index.js";
 
 /**
  * @api {post} /users/register Register User
@@ -164,6 +164,7 @@ export const forgetPassword = async (req, res, next) => {
             new ErrorClass("email doesn't exist", 400, "email doesn't exist")
         );
     }
+    
     // Generate a random password reset code
     const otp = otpGenerator.generate(6, {
         upperCaseAlphabets: false,
@@ -173,7 +174,7 @@ export const forgetPassword = async (req, res, next) => {
     // Send an email to the user with a random hashed reset code
     const isEmailSent = await sendEmailService({
         to: email,
-        subject: `welcome ${isUserExists.userName}`,
+        subject: `welcome`,
         htmlMessage: `<h1>your verify code for reseting the password is : ${otp}  it is valid for 10 minutes</h1>`,
     });
     // If the email sending fails, return an error response
@@ -249,8 +250,7 @@ export const resetPassword = async (req, res, next) => {
     // Delete the password reset and verification fields from the user object
     user.verifyPasswordReset = undefined;//to delet it from db
     user.passwordResetExpires = undefined;
-    user.password=password;
-
+    user.password=password ;
     // Save the updated user
     await user.save();
     // Return a success response
