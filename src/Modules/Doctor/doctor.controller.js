@@ -339,7 +339,6 @@ export const approveOrRejectRequest = async (req, res, next) => {
             );
     }
     if(status==false){
-        console.log(status);
         //send email to tell the doctor is approved
         const isEmailSent=await sendEmailService({
             to:doctor.email,
