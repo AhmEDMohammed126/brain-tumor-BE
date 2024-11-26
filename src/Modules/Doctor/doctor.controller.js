@@ -103,7 +103,7 @@ export const registerDoctor = async(req, res,next) =>{
 
 
 /*
-* @api {get} /users/confirmation/:confirmationToken  Verify Email
+* @api {get} /doctors/confirmation/:confirmationToken  Verify Email
  * @param {req} req 
  * @param {res} res 
  * @param {next} next 

@@ -22,14 +22,8 @@ const patientSchema = new Schema({
     userType:{
         type:String,
         required:true,
-        enum:systemRoles.DOCTOR,
+        enum:systemRoles.PATIENT,
     },
-    password:{
-        type:String,
-        required:true
-    },
-    passwordResetExpires:Date,
-    verifyPasswordReset:Boolean,
     status: {
         // (online : true , offline:false )
         type: Boolean,
@@ -43,9 +37,6 @@ const patientSchema = new Schema({
             required:true
         }
     }],
-    otp: {
-        type: String,
-    },
     DOB: {
         type: Date,
         required: true,
@@ -113,20 +104,11 @@ const patientSchema = new Schema({
     
 },{timestamps:true,toJSON:{virtuals:true},toObject:{virtuals:true}});
 
-//============document middleware=============
-patientSchema.pre("save",function(){
-    if(this.isModified("password")){    
-        this.password=hashSync(this.password,+process.env.SALT_ROUNDS)
-    }
-});
-
-//==================query middleware=============
-patientSchema.pre(["updateOne"],function(){
-    if(this.isModified("password")){
-        this.password=hashSync(this.password,+process.env.SALT_ROUNDS)
-    }
-    console.log(this.getQuery());
-    
-})
+// //============document middleware=============
+// patientSchema.pre("save",function(){
+//     if(this.isModified("password")){    
+//         this.password=hashSync(this.password,+process.env.SALT_ROUNDS)
+//     }
+// });
 
 export const Patient = mongoose.models.Patient ||model("Patient", patientSchema);

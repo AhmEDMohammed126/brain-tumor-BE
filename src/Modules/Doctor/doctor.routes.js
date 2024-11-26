@@ -3,7 +3,7 @@ import { errorHandler, multerHost, validationMiddleware } from "../../Middleware
 import * as controller from "./doctor.controller.js";
 import * as validation from "./doctor.schema.js"
 import { extensions } from "../../Utils/index.js";
-import { parseWorkDays } from "./Doctor.middleware/parseWorkDays.js";
+import { parseJSONField } from "../../Middlewares/parseJSONField .js";
 
 const doctorRouter=Router();
 
@@ -13,9 +13,15 @@ doctorRouter.post(
         { name: "profilePic", maxCount: 1 }, // Single image file
         { name: "certifications", maxCount: 1 },   // Single PDF file
     ])),
-    parseWorkDays,
+    parseJSONField("workDays"),
     errorHandler(validationMiddleware(validation.registerDoctorSchema)),
     errorHandler(controller.registerDoctor)
+);
+
+doctorRouter.get(
+    "/confirmation/:confirmationToken",
+    errorHandler(validationMiddleware(validation.verifySchema)),
+    errorHandler(controller.verifyEmail)
 );
 
 export {doctorRouter};

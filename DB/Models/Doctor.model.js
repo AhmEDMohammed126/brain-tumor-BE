@@ -25,25 +25,15 @@ const doctorSchema = new Schema({
         required:true,
         enum:systemRoles.DOCTOR,
     },
-    password:{
-        type:String,
-        required:true
-    },
     DOB:{
-        //1990-05-15
         type:Date,
         required:true
     },
-    passwordResetExpires:Date,
-    verifyPasswordReset:Boolean,
     status: {
         // (online : true , offline:false )
         type: Boolean,
         required: true,
         default: false,
-    },
-    otp: {
-        type: String,
     },
     age:{
         type:Number,
@@ -114,21 +104,15 @@ const doctorSchema = new Schema({
     rating:Number
 },{timestamps:true,toJSON:{virtuals:true},toObject:{virtuals:true}});
 
-//============document middleware=============
-doctorSchema.pre("save",function(){
-    if(this.isModified("password")){    
-        this.password=hashSync(this.password,+process.env.SALT_ROUNDS)
-    }
-});
 
 //==================query middleware=============
-doctorSchema.pre(["updateOne"],function(){
-    if(this.isModified("password")){
-        this.password=hashSync(this.password,+process.env.SALT_ROUNDS)
-    }
-    console.log(this.getQuery());//this.getQuery() or this.getFilter() return the condtions wich i used to find user like _id
+// doctorSchema.pre(["updateOne"],function(){
+//     if(this.isModified("password")){
+//         this.password=hashSync(this.password,+process.env.SALT_ROUNDS)
+//     }
+//     console.log(this.getQuery());//this.getQuery() or this.getFilter() return the condtions wich i used to find user like _id
     
-})
+// })
 
 doctorSchema.virtual('Reviews',
     {

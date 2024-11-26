@@ -8,10 +8,10 @@ export const defineUserType = async (user) => {
         isUserExists=await Admin.findOne({$or:[{email:user?.email},{_id:user?.userId}]})
     }
     else if(user.userType==systemRoles.DOCTOR){
-         //isUserExists=await Doctor.findOne({email:user?.email,isEmailVerified:true})
+        isUserExists=await Doctor.findOne({email:user?.email,isEmailVerified:true})
     }
     else if(user.userType==systemRoles.PATIENT){
-         // isUserExists=await Patient.findOne({email:user?.email,isEmailVerified:true})
+        isUserExists=await Patient.findOne({email:user?.email,isEmailVerified:true})
     }
     return isUserExists;
 }

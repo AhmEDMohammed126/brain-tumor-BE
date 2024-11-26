@@ -31,5 +31,11 @@ export const registerDoctorSchema = {
         .pattern(/^[0-9]{10,15}$/)
         .required(),
     consultationFess: Joi.number().min(0).required(),
-})
-}
+    })
+};
+
+export const verifySchema = {
+    params: Joi.object({
+        confirmationToken: Joi.string().required(),
+    }),
+};
