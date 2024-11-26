@@ -133,3 +133,4 @@ export const verifyEmail = async (req, res, next) => {
       // response
     res.status(200).json({ message: "User email successfully confirmed ", user });
 };
+//get info controller

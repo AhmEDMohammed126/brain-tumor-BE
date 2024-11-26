@@ -1,7 +1,5 @@
 import jwt from "jsonwebtoken";
 import { defineUserType, ErrorClass, systemRoles } from "../Utils/index.js";
-import { Admin } from "../../DB/Models/index.js";
-
 
 /**
  * @returns {function} return middleware function

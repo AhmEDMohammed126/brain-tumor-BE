@@ -54,6 +54,13 @@ userRouter.patch(
     errorHandler(controller.resetPassword)
 );
 
+userRouter.patch(
+    "/update-password",
+    errorHandler(auth()),
+    errorHandler(validationMiddleware(validation.updatePasswordSchema)),
+    errorHandler(controller.updatePassword)
+);
+
 userRouter.put(
     "/soft-delete-user",
     errorHandler(auth()),
@@ -68,6 +75,14 @@ userRouter.put(
     errorHandler(validationMiddleware(validation.unblockUserSchema)),
     middlewares.authorizationMiddleware([systemRoles.ADMIN]),
     errorHandler(controller.unblockUser)
+);
+
+userRouter.delete(
+    "/deleteUser",
+    errorHandler(auth()),
+    errorHandler(validationMiddleware(validation.DeleteUserSchema)),
+    middlewares.authorizationMiddleware([systemRoles.ADMIN]),
+    errorHandler(controller.DeleteUser)
 );
 
 // userRouter.put(

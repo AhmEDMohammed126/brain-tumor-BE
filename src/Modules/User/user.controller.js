@@ -257,6 +257,25 @@ export const resetPassword = async (req, res, next) => {
     res.status(200).json({ message: "password reset successfully" });
 };
 
+export const updatePassword = async (req, res, next) => {
+    //destruct user from req
+    const { authUser } = req;
+    const user = await User.findOne({email:authUser.email,isMarkedAsDeleted:false});
+    //destruct password from body
+    const {oldPassword, password } = req.body;
+     // compare password
+    const isMatch = compareSync(oldPassword, user.password);
+    if (!isMatch){
+        return next(
+            new ErrorClass("Invalid credentials", 400, "old Password not true")
+        );
+    };
+    user.password=password;
+    await user.save();
+    //response
+    res.status(200).json({ message: "user password updated "});
+}
+
 /**
  * @api {post} /users/soft-delete-user  soft delete user or block user
  */
@@ -271,22 +290,15 @@ export const softDeleteUser = async (req, res, next) => {
     //TODO: check which one of two wayes will work
     const Ouser=await defineUserType(user);
     //update isMarkedAsDeleted
+    if(!Ouser) return next(
+        new ErrorClass("ther is no user with this email", 400, "user not found or already deleted")
+    );
     Ouser.isMarkedAsDeleted = true;
     await Ouser.save();
-    //mark as deleted in admins
-    // const admin=await Admin.findOneAndUpdate({email:email,isMarkedAsDeleted:false},{isMarkedAsDeleted:true,status:false},{new:true});
-    // if(!admin){
-    //     //mark as deleted in doctors
-    //     const doctor=await Doctor.findOneAndUpdate({email:email,isMarkedAsDeleted:false},{isMarkedAsDeleted:true,status:false},{new:true});
-    //     if(!doctor){
-    //             //mark as deleted in patients
-    //             await Patient.findOneAndUpdate({email:email,isMarkedAsDeleted:false},{isMarkedAsDeleted:true,status:false},{new:true});
-    //         }
-    //     }
     //update change Log
     const logUpdateObject={userEmail:email,updatedBy:authUser._id,action:"SOFT-DELETE",changes:{action:"block",user}};
     await AdminChangeLog.create(logUpdateObject);
-    return res.status(200).json({message:"user deleted"})
+    return res.status(200).json({message:"user blocked"})
 }
 
 export const unblockUser = async (req, res, next) => {
@@ -299,21 +311,40 @@ export const unblockUser = async (req, res, next) => {
         );
     //TODO: check which one of two wayes will work 
     const Ouser=await defineUserType(user);
+    if(!Ouser) return next(
+        new ErrorClass("ther is no user with this email", 400, "user not found or already deleted")
+    );
     //update isMarkedAsDeleted or unmark as deleted
     Ouser.isMarkedAsDeleted = false;
     await Ouser.save();
-    //unmark as deleted in admins
-    // const admin=await Admin.findOneAndUpdate({email:email,isMarkedAsDeleted:true},{isMarkedAsDeleted:false},{new:true});
-    // if(!admin){
-    //     //unmark as deleted in doctors
-    //     const doctor=await Doctor.findOneAndUpdate({email:email,isMarkedAsDeleted:true},{isMarkedAsDeleted:false},{new:true});
-    //     if(!doctor){
-    //             //unmark as deleted in patients
-    //             await Patient.findOneAndUpdate({email:email,isMarkedAsDeleted:true},{isMarkedAsDeleted:false},{new:true});
-    //         }
-    //     }
     //update change Log
     const logUpdateObject={userEmail:email,updatedBy:authUser._id,action:"UPDATE",changes:{action:"unblock",user}};
     await AdminChangeLog.create(logUpdateObject);
     return res.status(200).json({message:"user unblocked"})
+}
+
+/**
+ * @api {delete} /users/deleteUser  Delete user
+ */
+
+//modifay it and move it to each controller type of users 
+export const DeleteUser = async (req, res, next) => {
+    const {authUser}=req;
+    const {email}=req.body;
+    const user=await User.findOne({email:email}).select('-password -__v');
+    if(!user)
+        return next(
+            new ErrorClass("ther is no user with this email", 400, "user not found or already deleted")
+        );
+    //TODO: check which one of two wayes will work
+    const Ouser=await defineUserType(user);
+    //update isMarkedAsDeleted
+    if(!Ouser) return next(
+        new ErrorClass("ther is no user with this email", 400, "user not found or already deleted")
+    );
+    await Ouser.deleteOne({email:email});
+    //update change Log
+    const logUpdateObject={userEmail:email,updatedBy:authUser._id,action:"DELETE",changes:{action:"Delete",user}};
+    await AdminChangeLog.create(logUpdateObject);
+    return res.status(200).json({message:"user deleted"})
 }
