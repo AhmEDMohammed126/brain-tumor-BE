@@ -61,6 +61,5 @@ export const updatePatientSchema = {
                         .required(),
                 })
             ).optional(),
-            public_id: Joi.string().optional(),
         })
 }

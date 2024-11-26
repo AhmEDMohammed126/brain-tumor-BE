@@ -7,12 +7,13 @@ import {validationMiddleware} from "../../Middlewares/index.js"
 import { extensions, systemRoles } from "../../Utils/index.js";
 const userRouter=Router();
 
-const {errorHandler,auth,multerHost}=middlewares;
+const {errorHandler,auth,multerHost,authorizationMiddleware}=middlewares;
 
 userRouter.post(
     "/registerAdmin",
+    errorHandler(auth()),
     errorHandler(multerHost({ allowedExtensions:extensions.Images }).single("image")),
-    middlewares.authorizationMiddleware([systemRoles.ADMIN]),
+    errorHandler(authorizationMiddleware([systemRoles.ADMIN])),
     errorHandler(validationMiddleware(validation.registeradminSchema)),
     errorHandler(controller.registerAdmin)
 );
@@ -32,7 +33,6 @@ userRouter.post(
 userRouter.patch(
     "/logout",
     errorHandler(auth()),
-    errorHandler(middlewares.validationMiddleware(validation.logOutSchema)),
     errorHandler(controller.logOut)
 );
 
@@ -64,24 +64,24 @@ userRouter.patch(
 userRouter.put(
     "/soft-delete-user",
     errorHandler(auth()),
+    errorHandler(authorizationMiddleware([systemRoles.ADMIN])),
     errorHandler(validationMiddleware(validation.softDeleteUserSchema)),
-    middlewares.authorizationMiddleware([systemRoles.ADMIN]),
     errorHandler(controller.softDeleteUser)
 );
 
 userRouter.put(
     "/unblockUser",
     errorHandler(auth()),
+    errorHandler(authorizationMiddleware([systemRoles.ADMIN])),
     errorHandler(validationMiddleware(validation.unblockUserSchema)),
-    middlewares.authorizationMiddleware([systemRoles.ADMIN]),
     errorHandler(controller.unblockUser)
 );
 
 userRouter.delete(
     "/deleteUser",
     errorHandler(auth()),
+    errorHandler(authorizationMiddleware([systemRoles.ADMIN])),
     errorHandler(validationMiddleware(validation.DeleteUserSchema)),
-    middlewares.authorizationMiddleware([systemRoles.ADMIN]),
     errorHandler(controller.DeleteUser)
 );
 

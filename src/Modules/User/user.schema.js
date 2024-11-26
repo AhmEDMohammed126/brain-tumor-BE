@@ -20,21 +20,6 @@ export const verifySchema = {
     }),
 };
 
-
-export const logInSchema = {
-    body: Joi.object({
-        email: generalRules.email.required(),
-        password: generalRules.password.required(),
-    }),
-};
-
-export const logOutSchema = {
-    headers: Joi.object({
-        token: Joi.string().required(),
-        ...generalRules.headers,
-    }),
-};
-
 export const forgetPassSchema ={
     body: Joi.object({
         email: generalRules.email.required(),
@@ -65,20 +50,12 @@ export const softDeleteUserSchema={
     body:Joi.object({
         email: generalRules.email.required()
     }),
-    headers: Joi.object({
-        token: Joi.string().required(),
-        ...generalRules.headers,
-    })
 }
 
 export const unblockUserSchema = {
     body:Joi.object({
         email: generalRules.email.required()
     }),
-    headers: Joi.object({
-        token: Joi.string().required(),
-        ...generalRules.headers,
-    })
 };
 
 export const DeleteUserSchema={

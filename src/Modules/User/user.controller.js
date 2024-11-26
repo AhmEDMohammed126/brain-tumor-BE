@@ -3,7 +3,7 @@ import { compareSync } from "bcrypt"
 import jwt from "jsonwebtoken";
 import { nanoid } from "nanoid";
 import otpGenerator from "otp-generator";
-import { defineUserType, ErrorClass, uploadFile } from "../../Utils/index.js";
+import { defineUserType, ErrorClass, systemRoles, uploadFile } from "../../Utils/index.js";
 import {User, Admin, AdminChangeLog } from "../../../DB/Models/index.js";
 
 /**
@@ -32,22 +32,20 @@ export const registerAdmin = async(req, res,next) =>{
         userType,
     })
 
-
-        const adminInstance=new Admin({
-            firstName,
-            lastName,
-            email,
-            userType,
-            status:false,
-            age,
-            gender,
-            phone,
-            profilePic:{
-                public_id,
-                secure_url
-            },
-            customId
-        });
+    const adminInstance=new Admin({
+        firstName,
+        lastName,
+        email,
+        userType,
+        age,
+        gender,
+        phone,
+        profilePic:{
+            public_id,
+            secure_url
+        },
+        customId
+    });
     
     //generate token instead of sending _id
     const confirmationToken = jwt.sign(
@@ -127,7 +125,12 @@ export const login = async (req, res, next) => {
     }
     //select user 
     const Ouser=await defineUserType(user);
-
+    if(Ouser.userType === systemRoles.DOCTOR){
+        if(!Ouser.isDoctorVerified)
+            return next(
+                new ErrorClass("Invalid credentials", 400, "Doctor account is not verified")
+            );
+    }
     //update status
     Ouser.status = true;
     await Ouser.save();
