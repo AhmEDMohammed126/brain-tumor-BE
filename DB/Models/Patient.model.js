@@ -1,4 +1,3 @@
-import { hashSync } from "bcrypt";
 import { systemRoles } from "../../src/Utils/system-roles.utils.js";
 import mongoose from "../global-setup.js";
 import { ReviewStatus } from "../../src/Utils/index.js";
