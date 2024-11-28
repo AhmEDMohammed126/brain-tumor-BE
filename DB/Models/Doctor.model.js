@@ -1,7 +1,5 @@
-import { hashSync } from "bcrypt";
-import { systemRoles } from "../../src/Utils/system-roles.utils.js";
 import mongoose from "../global-setup.js";
-import { Badges } from "../../src/Utils/enums.utils.js";
+import { Badges, ReviewStatus,systemRoles } from "../../src/Utils/index.js";
 
 const { Schema, model } = mongoose;
 
@@ -118,14 +116,15 @@ doctorSchema.virtual('Reviews',
     {
         ref:'Review',
         localField:'_id',
-        foreignField:'doctorId'
+        foreignField:'doctorId',
+        match: {reviewStatus:ReviewStatus.APPROVED}
     }
 );
 doctorSchema.virtual('Clinics',
     {
         ref:'Clinic',
         localField:'_id',
-        foreignField:'userId'
+        foreignField:'doctorId'
     }
 );
 //TODO: return related articals

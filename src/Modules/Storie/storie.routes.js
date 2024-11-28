@@ -5,8 +5,6 @@ import * as validation from "../Storie/storie.schema.js";
 
 import { errorHandler ,auth ,authorizationMiddleware ,validationMiddleware} from "../../Middlewares/index.js";
 import { systemRoles } from "../../Utils/index.js";
-import { validate } from "moongose/models/user_model.js";
-
 
 const storieRouter = Router();
 
@@ -20,7 +18,7 @@ storieRouter.post("/addStorie",
 storieRouter.get("/getStories",
     errorHandler(auth()),
     errorHandler(authorizationMiddleware([systemRoles.PATIENT, systemRoles.DOCTOR])),
-    errorHandler(controller.getStorie)
+    errorHandler(controller.getStories)
 );
 
 storieRouter.get("/getStorie/:id",
@@ -31,8 +29,9 @@ storieRouter.get("/getStorie/:id",
 
 storieRouter.get("/getPatientStories/:id",
     errorHandler(auth()),
+    errorHandler(validationMiddleware(validation.getPatientStoriesSchema)),
     errorHandler(authorizationMiddleware([systemRoles.DOCTOR, systemRoles.PATIENT])),
-    errorHandler(controller.getStorie)
+    errorHandler(controller.getPatientStories)
 );
 
 storieRouter.get("/getPendingStories",
@@ -43,6 +42,7 @@ storieRouter.get("/getPendingStories",
 
 storieRouter.put("/acceptOrRejectStorie/:id",
     errorHandler(auth()),
+    errorHandler(validationMiddleware(validation.acceptOrRejectStorieSchema)),
     errorHandler(authorizationMiddleware([systemRoles.ADMIN])),
     errorHandler(controller.acceptOrRejectStorie)
 );

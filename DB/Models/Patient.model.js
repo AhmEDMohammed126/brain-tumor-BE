@@ -1,6 +1,7 @@
 import { hashSync } from "bcrypt";
 import { systemRoles } from "../../src/Utils/system-roles.utils.js";
 import mongoose from "../global-setup.js";
+import { ReviewStatus } from "../../src/Utils/index.js";
 
 const { Schema, model } = mongoose;
 
@@ -30,13 +31,6 @@ const patientSchema = new Schema({
         required: true,
         default: false,
     },
-    stories:[{
-        storiesId:{
-            type:Schema.Types.ObjectId,
-            ref:"Storie",
-            required:true
-        }
-    }],
     DOB: {
         type: Date,
         required: true,
@@ -110,5 +104,14 @@ const patientSchema = new Schema({
 //         this.password=hashSync(this.password,+process.env.SALT_ROUNDS)
 //     }
 // });
+
+patientSchema.virtual('stories',
+    {
+        ref:'Storie',
+        localField:'_id',
+        foreignField:'userId',
+        match: { status: ReviewStatus.APPROVED } // Add a condition to match only approved stories
+    }
+);
 
 export const Patient = mongoose.models.Patient ||model("Patient", patientSchema);

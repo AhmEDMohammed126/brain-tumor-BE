@@ -64,7 +64,7 @@ export const registerDoctor = async(req, res,next) =>{
     
     //create new clinic instance
     const clinic = new Clinic({
-        userId: doctorInstance._id,
+        doctorId: doctorInstance._id,
         clinicName,
         workDays,
         street,
