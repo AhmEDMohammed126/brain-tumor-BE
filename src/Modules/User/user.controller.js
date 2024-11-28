@@ -130,7 +130,8 @@ export const login = async (req, res, next) => {
             return next(
                 new ErrorClass("Invalid credentials", 400, "Doctor account is not verified")
             );
-    }
+    };
+    
     //update status
     Ouser.status = true;
     await Ouser.save();

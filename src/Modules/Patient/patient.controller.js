@@ -120,7 +120,9 @@ export const verifyEmail = async (req, res, next) => {
 export const getPatients=async (req, res, next) => {
     const {page=1,limit=2,sort,...filters}=req.query;
     const model = Patient
-    const ApiFeaturesInstance = new ApiFeatures(model,req.query)
+    const ApiFeaturesInstance = new ApiFeatures(model,req.query,[
+        { path: "stories", select: "-__v" },
+    ])
     .pagination()
     .filter()
     .sort();
@@ -143,7 +145,7 @@ export const getInfo = async (req, res, next) => {
     const { authUser } = req;
     //find user
     //TODO: MAKE POPULATE FOR ALL RELATED DATA
-    const patient = await Patient.findById(authUser._id).select('-__v');
+    const patient = await Patient.findById(authUser._id).populate('stories').select('-__v');
     //response
     res.status(200).json({ message: "Patient", data: patient });
 };
@@ -155,7 +157,7 @@ export const getInfo = async (req, res, next) => {
 export const getPatient = async (req, res, next) => {
     const { patientId } = req.params;
     //TODO: POPULATE ALL RELATED WITHOUT STORIES & REVIEWS
-    const patient = await Patient.findById(patientId).select('-__v');
+    const patient = await Patient.findById(patientId).populate('stories').select('-__v');
     if (!patient) {
         return next(
             new ErrorClass("No patient found", 404, "patient not found")

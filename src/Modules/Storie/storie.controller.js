@@ -1,5 +1,5 @@
 import { Storie } from "../../../DB/Models/index.js";
-import { ReviewStatus } from "../../Utils/index.js";
+import { ApiFeatures, ErrorClass, ReviewStatus } from "../../Utils/index.js";
 
 /**
  * @api {post} /stories/addStorie Create a new storie
@@ -20,15 +20,15 @@ export const addStorie = async (req, res, next) => {
  */
 export const getStories = async (req, res, next) => {
     const {page=1,limit=2,sort,...filters}=req.query;
-    //find docters
-    req.query.status= ReviewStatus.APPROVED;
+    req.query.status = ReviewStatus.APPROVED;
     const model = Storie;
     const ApiFeaturesInstance = new ApiFeatures(model,req.query,[
-        { path: "userId", select: "firstName lastName email -_id" }
+        { path: "userId", select: "firstName lastName email _id" }
     ])
     .pagination()
     .filter()
     .sort();
+
     const stories = await ApiFeaturesInstance.mongooseQuery;
     if (!stories) {
         return next(
@@ -69,8 +69,8 @@ export const getStorie = async (req, res, next) => {
  */
 
 export const getPatientStories = async (req, res, next) => {
-    const { patientId } = req.params;
-    const stories = await Storie.find({userId:patientId}).populate(
+    const { id } = req.params;
+    const stories = await Storie.find({userId:id}).populate(
         [
         {
             path:"userId",
@@ -78,6 +78,7 @@ export const getPatientStories = async (req, res, next) => {
         }
         ]
     );
+
     if(!stories){
         return next(
             new ErrorClass("there is no stories", 400, "stories not found")
@@ -94,7 +95,7 @@ export const getPatientStories = async (req, res, next) => {
 
 export const getPendingStories = async (req, res, next) => {
     const {page=1,limit=2,sort,...filters}=req.query;
-    //find docters
+    //find stories
     req.query.status= ReviewStatus.PENDING;
     const model = Storie;
     const ApiFeaturesInstance = new ApiFeatures(model,req.query,[
