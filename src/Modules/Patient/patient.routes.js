@@ -31,6 +31,7 @@ patientRouter.get(
 patientRouter.get(
     "/get-info",
     errorHandler(auth()),
+    errorHandler(authorizationMiddleware([systemRoles.PATIENT])),
     errorHandler(controller.getInfo)
 );
 

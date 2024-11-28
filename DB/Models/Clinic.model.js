@@ -2,7 +2,7 @@ import mongoose from "../global-setup.js";
 import { Schema,model } from "mongoose";
 
 const clinicSchema = new Schema({
-    userId:{
+    doctorId:{
         type:Schema.Types.ObjectId,
         required:true,
         ref:"Doctor"
@@ -56,10 +56,6 @@ const clinicSchema = new Schema({
         type:String,
         required:true
     },
-    isMarkedAsDeleted:{
-        type:Boolean,
-        default:false
-    },
     consultationFess:{
         type:Number,
         required:true,
@@ -67,10 +63,4 @@ const clinicSchema = new Schema({
     }   
 },{timestamps:true});
 
-clinicSchema.pre("save",async function(){
-    const {userId}=this;
-    if(this.isDefault){
-        await Clinic.updateOne({userId,isDefault:true},{isDefault:false})
-    }
-})
 export const Clinic=mongoose.models.Clinic || model("Clinic",clinicSchema)

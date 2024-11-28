@@ -10,9 +10,12 @@ export const routerHandler = (app) => {
     app.use(json());
 
     //REST-API
-    app.use("/users",router.userRouter)
-    app.use("/doctors",router.doctorRouter)
-    app.use("/patients",router.patientRouter)
+    app.use("/users",router.userRouter);
+    app.use("/doctors",router.doctorRouter);
+    app.use("/patients",router.patientRouter);
+    app.use("/clinics",router.clinicRouter);
+    app.use("/reviews",router.reviewRouter);
+    app.use("/stories",router.storieRouter);
     
     app.use("*",(req,res,next)=>
         res.status(404).json({message:"Route Not Found"})

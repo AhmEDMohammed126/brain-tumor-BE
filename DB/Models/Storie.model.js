@@ -1,3 +1,4 @@
+import { ReviewStatus } from "../../src/Utils/enums.utils.js";
 import mongoose from "../global-setup.js";
 
 const { Schema, model } = mongoose;
@@ -14,8 +15,8 @@ const storieSchema = new Schema({
     },
     status:{
         type: String,
-        enum: ["ACCEPTED", "REJECTED", "PENDING"],
-        default: "PENDING"
+        enum: Object.values(ReviewStatus),
+        default: ReviewStatus.PENDING
     }
 },{timestamps:true});   
 

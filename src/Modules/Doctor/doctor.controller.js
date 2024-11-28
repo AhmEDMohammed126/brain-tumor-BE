@@ -145,6 +145,7 @@ export const getDoctors=async (req, res, next) => {
     req.query.isDoctorVerified = true;
     req.query.isMarkedAsDeleted = false;
     req.query.isEmailVerified = true;
+    //TODO: return related articals
     const ApiFeaturesInstance = new ApiFeatures(model,req.query,[
         { path: "Reviews", select: "-__v" },
         { path: "Clinics", select: "-__v" }
@@ -170,10 +171,11 @@ export const getInfo = async (req, res, next) => {
     //destruct user from req
     const { authUser } = req;
     //find user
+    //TODO: return related articals
     const doctor = await Doctor.findById(authUser._id).populate([
         {
             path: "patients.patientId",
-            select: " -__v -_id"
+            select: " -__v "
         },
         { path: "Reviews", select: "-__v" },
         { path: "Clinics", select: "-__v" }
@@ -193,6 +195,7 @@ export const getInfo = async (req, res, next) => {
  */
 export const getDoctor = async (req, res, next) => {
     const { doctorId } = req.params;
+    //TODO: return related articals ,reviews and clinics information
     const doctor = await Doctor.findById(doctorId).select('-__v');
     if (!doctor) {
         return next(

@@ -33,6 +33,7 @@ doctorRouter.get(
 doctorRouter.get(
     "/get-info",
     errorHandler(auth()),
+    errorHandler(authorizationMiddleware([systemRoles.DOCTOR])),
     errorHandler(controller.getInfo)
 );
 
