@@ -1,6 +1,6 @@
 import mongoose from "../global-setup.js";
-import { systemRoles ,ReviewStatus} from "../../src/Utils/index.js";
 import { Badges } from "../../src/Utils/enums.utils.js";
+import { systemRoles ,ReviewStatus} from "../../src/Utils/index.js";
 
 const { Schema, model } = mongoose;
 
