@@ -3,66 +3,57 @@ import { generalRules } from "../../Utils/index.js";
 
 export const addClinicSchema ={
     body: Joi.object({
-        country: Joi.string().min(2).max(20).required(),
-        city: Joi.string().min(2).max(20).required(),
-        buildingNumber: Joi.number().integer().min(0).required(),
-        floorNumber: Joi.number().integer().min(0).max(100).required(),
-        addressLable: Joi.string().required(),
-        isDefault:Joi.boolean(),
+        clinicName: Joi.string().min(4).required(),
+        number: Joi.string().required(),
+        workDays: Joi.array()
+        .items(
+            Joi.object({
+                day: Joi.string()
+                .valid("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
+                .required(),
+                openTime: Joi.string().required(),
+                closeTime: Joi.string().required(),
+        })).required(),
+        city: Joi.string().required(),
+        buildingNumber: Joi.number().min(0).required(),
+        floorNumber: Joi.number().min(0).required(),
+        street: Joi.string().required(),
+        consultationFess: Joi.number().min(0).required(),
     })
 };
 
-export const getAllClinicSchema = {
-    headers: Joi.object({
-        token: Joi.string().required(),
-        ...generalRules.headers,
-    }),
-};
-
 export const getClinicByIdSchema = {
-    headers: Joi.object({
-        token: Joi.string().required(),
-        ...generalRules.headers,
-    }),
-    params:Joi.object({
-        id:generalRules._id.required()
-    }),
-};
-
-export const softDeleteClinicSchema={
-    headers: Joi.object({
-        token: Joi.string().required(),
-        ...generalRules.headers,
-    }),
     params:Joi.object({
         id:generalRules._id.required()
     }),
 };
 
 export const deleteClinicSchema={
-    headers: Joi.object({
-        token: Joi.string().required(),
-        ...generalRules.headers,
-    }),
     params:Joi.object({
         id:generalRules._id.required()
     }),
 };
 
-
 export const editClinicSchema = {
-    headers: Joi.object({
-        token: Joi.string().required(),
-        ...generalRules.headers,
-    }),
     params:Joi.object({
         id:generalRules._id.required()
     }),
     body: Joi.object({
-        country: Joi.string().min(4).max(25).alphanum().optional(),
-        city: Joi.string().min(3).max(25).alphanum().optional(),
-        buildingNumber: Joi.number().integer().min(0),
-        floorNumber: Joi.number().integer().min(0).max(100),
-        isDefault: Joi.boolean(),
-    }),
+        clinicName: Joi.string().min(4).optional(),
+        number: Joi.string().optional(),
+        workDays: Joi.array()
+        .items(
+            Joi.object({
+                day: Joi.string()
+                .valid("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
+                .required(),
+                openTime: Joi.string().required(),
+                closeTime: Joi.string().required(),
+        })).optional(),
+        city: Joi.string().optional(),
+        buildingNumber: Joi.number().min(0).optional(),
+        floorNumber: Joi.number().min(0).optional(),
+        street: Joi.string().optional(),
+        consultationFess: Joi.number().min(0).optional(),
+    })
 };

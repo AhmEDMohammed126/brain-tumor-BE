@@ -20,6 +20,13 @@ export const verifySchema = {
     }),
 };
 
+export const logInSchema ={
+    body: Joi.object({
+        email: generalRules.email.required(),
+        password: generalRules.password.required(),
+    }),
+};
+
 export const forgetPassSchema ={
     body: Joi.object({
         email: generalRules.email.required(),

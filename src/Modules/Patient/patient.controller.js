@@ -142,6 +142,7 @@ export const getInfo = async (req, res, next) => {
     //destruct user from req
     const { authUser } = req;
     //find user
+    //TODO: MAKE POPULATE FOR ALL RELATED DATA
     const patient = await Patient.findById(authUser._id).select('-__v');
     //response
     res.status(200).json({ message: "Patient", data: patient });
@@ -153,6 +154,7 @@ export const getInfo = async (req, res, next) => {
  */
 export const getPatient = async (req, res, next) => {
     const { patientId } = req.params;
+    //TODO: POPULATE ALL RELATED WITHOUT STORIES & REVIEWS
     const patient = await Patient.findById(patientId).select('-__v');
     if (!patient) {
         return next(

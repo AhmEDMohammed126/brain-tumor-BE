@@ -125,7 +125,7 @@ export const login = async (req, res, next) => {
     }
     //select user 
     const Ouser=await defineUserType(user);
-    if(Ouser.userType === systemRoles.DOCTOR){
+    if(Ouser?.userType === systemRoles.DOCTOR){
         if(!Ouser.isDoctorVerified)
             return next(
                 new ErrorClass("Invalid credentials", 400, "Doctor account is not verified")

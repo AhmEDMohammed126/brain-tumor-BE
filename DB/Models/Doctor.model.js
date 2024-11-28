@@ -128,5 +128,6 @@ doctorSchema.virtual('Clinics',
         foreignField:'userId'
     }
 );
+//TODO: return related articals
 
 export const Doctor = mongoose.models.Doctor ||model("Doctor", doctorSchema);

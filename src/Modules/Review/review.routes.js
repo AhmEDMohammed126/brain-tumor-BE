@@ -15,10 +15,10 @@ reviewRouter.post("/addReview",
     errorHandler(authorizationMiddleware(systemRoles.PATIENT)),
     errorHandler(controller.addReview)
 );
-reviewRouter.get("/listReviews",
+reviewRouter.get("/listPendingReviews",
     auth(),
     errorHandler(authorizationMiddleware(systemRoles.ADMIN)),
-    errorHandler(controller.listReviews)
+    errorHandler(controller.listPendingReviews)
 );
 
 reviewRouter.get("/getReviews/:doctorId",
