@@ -148,7 +148,8 @@ export const getDoctors=async (req, res, next) => {
     //TODO: return related articals
     const ApiFeaturesInstance = new ApiFeatures(model,req.query,[
         { path: "Reviews", select: "-__v" },
-        { path: "Clinics", select: "-__v" }
+        { path: "Clinics", select: "-__v" },
+        { path: "Articles", select: "-__v" },
     ])
     .pagination()
     .filter()
@@ -178,7 +179,8 @@ export const getInfo = async (req, res, next) => {
             select: " -__v "
         },
         { path: "Reviews", select: "-__v" },
-        { path: "Clinics", select: "-__v" }
+        { path: "Clinics", select: "-__v" },
+        { path: "Articles", select: "-__v" },
     ]).select("-__v");
     if (!doctor) {
         return next(
@@ -196,7 +198,13 @@ export const getInfo = async (req, res, next) => {
 export const getDoctor = async (req, res, next) => {
     const { doctorId } = req.params;
     //TODO: return related articals ,reviews and clinics information
-    const doctor = await Doctor.findById(doctorId).select('-__v');
+    const doctor = await Doctor.findById(doctorId)
+    .populate([
+            { path: "Reviews", select: "-__v" },
+            { path: "Clinics", select: "-__v" },
+            { path: "Articles", select: "-__v" },
+    ])
+    .select('-__v');
     if (!doctor) {
         return next(
             new ErrorClass("No doctor found", 404, "doctor not found")

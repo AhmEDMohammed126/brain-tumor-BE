@@ -16,6 +16,7 @@ export const routerHandler = (app) => {
     app.use("/clinics",router.clinicRouter);
     app.use("/reviews",router.reviewRouter);
     app.use("/stories",router.storieRouter);
+    app.use("/articles",router.articleRouter);
     
     app.use("*",(req,res,next)=>
         res.status(404).json({message:"Route Not Found"})
