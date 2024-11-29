@@ -105,13 +105,13 @@ const doctorSchema = new Schema({
 
 
 //==================query middleware=============
-// doctorSchema.pre(["updateOne"],function(){
-//     if(this.isModified("password")){
-//         this.password=hashSync(this.password,+process.env.SALT_ROUNDS)
-//     }
-//     console.log(this.getQuery());//this.getQuery() or this.getFilter() return the condtions wich i used to find user like _id
+doctorSchema.pre(["delteOne"],function(){
+    if(this.isModified("password")){
+        this.password=hashSync(this.password,+process.env.SALT_ROUNDS)
+    }
+    console.log(this.getQuery());//this.getQuery() or this.getFilter() return the condtions wich i used to find user like _id
     
-// })
+})
 
 doctorSchema.virtual('Reviews',
     {
@@ -128,6 +128,13 @@ doctorSchema.virtual('Clinics',
         foreignField:'doctorId'
     }
 );
-//TODO: return related articals
+
+doctorSchema.virtual('Articles',
+    {
+        ref:'Article',
+        localField:'_id',
+        foreignField:'doctorId'
+    }
+);
 
 export const Doctor = mongoose.models.Doctor ||model("Doctor", doctorSchema);

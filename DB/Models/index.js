@@ -6,3 +6,4 @@ export * from './AdminChangeLog.model.js';
 export * from './review.model.js';
 export * from './Clinic.model.js';
 export * from './Storie.model.js';
+export * from './Article.model.js';

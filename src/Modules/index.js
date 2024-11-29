@@ -5,3 +5,4 @@ export * from "./Patient/patient.routes.js";
 export * from "./Clinic/clinic.routes.js";
 export * from "./Review/review.routes.js";
 export * from "./Storie/storie.routes.js";
+export * from "./Article/article.routes.js";

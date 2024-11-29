@@ -16,15 +16,23 @@ const articleSchema = new Schema({
         ref: "Doctor",
         required: true,
     },
-    images: [
-        {
-            secure_url: String, // URL of the uploaded image
-            public_id: String,  // Public ID for deletion if stored in Cloudinary
+    Images: {
+        URLs: [
+            {
+            secure_url: {
+                type: String,
+            },
+            public_id: {
+                type: String,
+            },
         },
-    ],
+        ],
+        customId: {
+            type: String,
+        }
+    }
 
-},
-    { timestamps: true }
+},{ timestamps: true }
 );
 
-export const Article =mongoose.models.Article || model("Article", articleSchema);
+export const Article  =mongoose.models.Article  || model("Article", articleSchema);
