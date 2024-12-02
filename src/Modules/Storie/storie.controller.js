@@ -23,7 +23,7 @@ export const getStories = async (req, res, next) => {
     req.query.status = ReviewStatus.APPROVED;
     const model = Storie;
     const ApiFeaturesInstance = new ApiFeatures(model,req.query,[
-        { path: "userId", select: "firstName lastName email _id" }
+        { path: "userId", select: "firstName lastName email _id profilePic" }
     ])
     .pagination()
     .filter()
