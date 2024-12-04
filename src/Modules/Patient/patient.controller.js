@@ -239,33 +239,3 @@ export const updateAccount=async(req, res,next) => {
     await patient.save();
     return res.status(200).json({message:"updated"})
 }
-export const softDeletePatient = async (req, res) => {
-    const { id } = req.params;
-  
-    if (!id) {
-      return res.status(400).json({ message: 'Patient ID is required.' });
-    }
-  
-    try {
-      const patient = await Patient.findById(id);
-  
-      if (!patient) {
-        return res.status(404).json({ message: 'Patient not found.' });
-      }
-  
-      // Mark patient as deleted
-      patient.isMarkedAsDeleted = true;
-      await patient.save();
-  
-      // Also mark the corresponding user as deleted
-      await User.findOneAndUpdate(
-        { email: patient.email },
-        { isMarkedAsDeleted: true }
-      );
-  
-      res.status(200).json({ message: 'Patient soft deleted successfully.' });
-    } catch (error) {
-      console.error('Error soft deleting patient:', error);
-      res.status(500).json({ message: 'Internal server error.' });
-    }
-  };

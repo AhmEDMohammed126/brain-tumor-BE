@@ -4,10 +4,8 @@ import * as controller from "./patient.controller.js";
 import * as validation from "./patient.schema.js"
 import { extensions, systemRoles } from "../../Utils/index.js";
 import { parseJSONField } from "../../Middlewares/parseJSONField .js";
-import { softDeletePatient }  from './patient.controller.js';
 
 const patientRouter=Router();
-patientRouter.put('/soft-delete/:id', softDeletePatient);
 
 patientRouter.post(
     '/patientRegister',
