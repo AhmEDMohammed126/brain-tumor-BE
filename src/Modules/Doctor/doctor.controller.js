@@ -364,3 +364,33 @@ export const approveOrRejectRequest = async (req, res, next) => {
     }
     res.status(200).json({ message: "Doctor request updated", data: doctor });
 };
+export const softDeleteDoctor = async (req, res) => {
+    const { id } = req.params;
+  
+    if (!id) {
+      return res.status(400).json({ message: 'Doctor ID is required.' });
+    }
+  
+    try {
+      const doctor = await Doctor.findById(id);
+  
+      if (!doctor) {
+        return res.status(404).json({ message: 'Doctor not found.' });
+      }
+  
+      // Mark doctor as deleted
+      doctor.isMarkedAsDeleted = true;
+      await doctor.save();
+  
+      // Also mark the corresponding user as deleted
+      await User.findOneAndUpdate(
+        { email: doctor.email },
+        { isMarkedAsDeleted: true }
+      );
+  
+      res.status(200).json({ message: 'Doctor soft deleted successfully.' });
+    } catch (error) {
+      console.error('Error soft deleting doctor:', error);
+      res.status(500).json({ message: 'Internal server error.' });
+    }
+  };

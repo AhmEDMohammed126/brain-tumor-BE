@@ -4,8 +4,10 @@ import * as controller from "./doctor.controller.js";
 import * as validation from "./doctor.schema.js"
 import { extensions, systemRoles } from "../../Utils/index.js";
 import { parseJSONField } from "../../Middlewares/parseJSONField .js";
+import { softDeleteDoctor }  from './doctor.controller.js';
 
 const doctorRouter=Router();
+doctorRouter.put('/soft-delete/:id', softDeleteDoctor);
 
 doctorRouter.post(
     '/doctorRegister',
