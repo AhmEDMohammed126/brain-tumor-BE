@@ -74,7 +74,7 @@ export const getPatientStories = async (req, res, next) => {
         [
         {
             path:"userId",
-            select:"firstName lastName email -_id"
+            select:"firstName lastName email -_id profilePic"
         }
         ]
     );
