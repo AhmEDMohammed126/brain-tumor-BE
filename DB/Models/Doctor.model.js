@@ -105,13 +105,15 @@ const doctorSchema = new Schema({
 
 
 //==================query middleware=============
-doctorSchema.pre(["delteOne"],function(){
-    if(this.isModified("password")){
-        this.password=hashSync(this.password,+process.env.SALT_ROUNDS)
-    }
-    console.log(this.getQuery());//this.getQuery() or this.getFilter() return the condtions wich i used to find user like _id
-    
-})
+//if doctor deleted delete its clinics
+doctorSchema.post(["findOneAndDelete","deleteOne"], async function () {
+    const _id = this.getQuery()._id;
+     // delete the related clinics from db
+    await mongoose.models.Clinic.deleteMany({ doctorId:_id });
+     // delete the related articles from db
+    await mongoose.models.Article.deleteMany({ doctorId:_id });
+    //TODO: remove related reviews
+});
 
 doctorSchema.virtual('Reviews',
     {
@@ -136,5 +138,11 @@ doctorSchema.virtual('Articles',
         foreignField:'doctorId'
     }
 );
+
+doctorSchema.virtual('Patients', {
+    ref: 'Patient',
+    localField: 'patients.patientId',
+    foreignField: '_id'
+});
 
 export const Doctor = mongoose.models.Doctor ||model("Doctor", doctorSchema);

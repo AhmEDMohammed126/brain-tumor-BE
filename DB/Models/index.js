@@ -7,3 +7,4 @@ export * from './review.model.js';
 export * from './Clinic.model.js';
 export * from './Storie.model.js';
 export * from './Article.model.js';
+export * from './Appointment.model.js';

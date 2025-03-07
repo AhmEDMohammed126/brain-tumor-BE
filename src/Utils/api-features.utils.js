@@ -38,13 +38,14 @@ export class ApiFeatures {
 
     //filtering
     filter() {
-        const{page=1,limit=3,sort,userId,...filters}=this.query
+        const{page=1,limit=15,sort,userId,...filters}=this.query
         const filterAsString=JSON.stringify(filters);
         const replacedFilter=filterAsString.replaceAll(/gt|gte|lt|lte|regex|ne|eq/g,key=>`$${key}`);
         this.filterObject={
             ...this.filterObject,
             ...JSON.parse(replacedFilter)
         };
+        
         this.mongooseQuery=this.model.paginate(this.filterObject,this.paginationObject)
         return this; 
     }

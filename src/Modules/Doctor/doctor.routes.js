@@ -77,4 +77,10 @@ doctorRouter.patch(
     errorHandler(controller.approveOrRejectRequest)
 );
 
+doctorRouter.get(
+    "/getDoctorPatients",
+    errorHandler(auth()),
+    errorHandler(controller.getDoctorPatients)
+)
+
 export {doctorRouter};

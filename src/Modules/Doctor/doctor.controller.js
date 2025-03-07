@@ -203,6 +203,7 @@ export const getDoctor = async (req, res, next) => {
             { path: "Reviews", select: "-__v" },
             { path: "Clinics", select: "-__v" },
             { path: "Articles", select: "-__v" },
+            { path: "Patients", select: "firstName lastName email gender phone listOfEmergency" },
     ])
     .select('-__v');
     if (!doctor) {
@@ -233,7 +234,7 @@ export const getBlockedDoctors = async (req, res, next) => {
  * @api {put} /doctors/updateDoctor/:doctorId update doctorId update doctor
  */
 export const updateAccount=async(req, res,next) => {
-    const {firstName,lastName,email,gender,bio,medicalLicense,experienceYears}=req.body;
+    const {firstName,lastName,email,gender,bio,medicalLicense,experienceYears,DOB}=req.body;
     const {authUser}=req;
     const isEmailExist=await User.findOne({email});
     if(isEmailExist) return res.status(400).json({message:"email already exist"})
@@ -272,6 +273,14 @@ export const updateAccount=async(req, res,next) => {
     doctor.bio=bio || doctor.bio;
     doctor.medicalLicense=medicalLicense || doctor.medicalLicense;
     doctor.experienceYears=experienceYears || doctor.experienceYears;
+    if(DOB){
+    // Calculate age from DOB
+    const dobDate = new Date(DOB);
+    const currentYear = new Date().getFullYear();
+    const age = currentYear - dobDate.getFullYear();
+    doctor.DOB=doctor.DOB;
+    doctor.age=age;
+    }
     
     if(email){
         const user=await User.findOne({email:authUser.email});        
@@ -363,4 +372,17 @@ export const approveOrRejectRequest = async (req, res, next) => {
 
     }
     res.status(200).json({ message: "Doctor request updated", data: doctor });
+};
+
+//
+//return doctor's patients
+export const getDoctorPatients = async (req, res, next) => {
+
+    const patients = await Doctor.findById(req.authUser._id).populate({ path: "Patients", select: "firstName lastName email gender phone listOfEmergency" },);
+    if (!patients) {
+        return next(
+            new ErrorClass("No patients found", 404, "patients not found")
+        );
+    }
+    res.status(200).json({ message: "All patients", Patients: patients.Patients });
 };
