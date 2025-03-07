@@ -97,6 +97,11 @@ const patientSchema = new Schema({
     
 },{timestamps:true,toJSON:{virtuals:true},toObject:{virtuals:true}});
 
+patientSchema.post(["findOneAndDelete","deleteOne"], async function () {
+    const _id = this.getQuery()._id;
+     // delete the related clinics from db
+    await mongoose.models.Storie.deleteMany({ userId:_id });
+});
 // //============document middleware=============
 // patientSchema.pre("save",function(){
 //     if(this.isModified("password")){    

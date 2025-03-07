@@ -50,14 +50,15 @@ export const getArticles = async (req, res, next) => {
                 path: "doctorId", 
                 select: "firstName lastName _id",
                 match: {isMarkedAsDeleted:false} 
-            },
+            }
         ]
     )
     .pagination()
     .filter()
     .sort();
+
     const articles = await ApiFeaturesInstance.mongooseQuery;
-    console.log(articles);
+
     if(!articles)
         return next(
                 new ErrorClass("No articles", 400 ,"Not Found")
@@ -81,6 +82,7 @@ export const getArticle = async (req, res, next) => {
             }
         ]
     ).select('-__v');
+    
     if(!article)
         return next(
                 new ErrorClass("No article found", 404 ,"Not Found")
