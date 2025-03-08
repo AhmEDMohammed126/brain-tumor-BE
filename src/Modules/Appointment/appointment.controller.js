@@ -1,6 +1,7 @@
 import { Appointment, Clinic } from "../../../DB/Models/index.js";
 import { ApiFeatures, ErrorClass } from "../../Utils/index.js";
 import { sendEmailService } from "../../../services/send-email.service.js"
+import { increaseTime } from "./appointment.utils.js";
 
 /**
  * @api {post} /appointments/addAppointment Add a new appointment
@@ -19,7 +20,7 @@ export const bookAppointment = async (req, res, next) => {
     if (patientBooked) {
         return next(new ErrorClass ("You are already booked in this time slot", 400,"You are already booked in this time slot cancle the previous booking"));
     }
-    const endTime = time +1.5;
+    const endTime = increaseTime(time, 1.5);
     const appointmentInstance = new Appointment({
         patientId,
         doctorId, 
