@@ -25,7 +25,6 @@ appointmentRouter.get("/getAppointmentById/:appointmentId",
 appointmentRouter.get("/getAppointments",
     errorHandler(auth()),
     errorHandler(authorizationMiddleware([systemRoles.PATIENT, systemRoles.DOCTOR])),
-    errorHandler(validationMiddleware(validation.getAppointmentsSchema)),
     errorHandler(controller.getAppointments)
 );
 
