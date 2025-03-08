@@ -8,7 +8,7 @@ export const bookAppointmentSchema={
         clinicId:generalRules._id.required(), 
         type:Joi.string().valid(...Object.values(AppointmentType)).required(),
         date:Joi.date().greater(Date.now()).required(),
-        time:Joi.number().required(),
+        time:Joi.string().required(),
     })
 };
 
@@ -28,7 +28,7 @@ export const getAppointmentsSchema={
         date: Joi.date().optional(),
         type: Joi.string().valid(...Object.values(AppointmentType)).optional(),
         status: Joi.string().valid(...Object.values(AppointmentStatus)).optional(),
-        time: Joi.number().optional(),
+        time: Joi.string().optional(),
 
     }),
 };

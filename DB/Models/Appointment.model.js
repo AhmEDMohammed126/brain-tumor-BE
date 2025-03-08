@@ -24,11 +24,11 @@ const appointmentSchema = new Schema({
         required: true,
     },
     time: {
-        type: Number,
+        type: String,
         required: true,
     },
     endTime: {
-        type: Number,
+        type: String,
         required: true,
     },
     type: { 
