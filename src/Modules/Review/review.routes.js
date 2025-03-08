@@ -9,6 +9,7 @@ import { systemRoles } from "../../Utils/index.js";
 const{errorHandler,auth,authorizationMiddleware ,validationMiddleware}=middlewares;
 
 const reviewRouter = Router();
+
 reviewRouter.post("/addReview",
     errorHandler(auth()),
     errorHandler(validationMiddleware(validation.addReviewSchema)),
@@ -21,10 +22,10 @@ reviewRouter.get("/listPendingReviews",
     errorHandler(controller.listPendingReviews)
 );
 
-reviewRouter.get("/getReviews/:doctorId",
+reviewRouter.get("/getDoctorReviews/:doctorId",
     errorHandler(auth()),
     errorHandler(validationMiddleware(validation.getReviewsSchema)),
-    errorHandler(controller.getReviews)
+    errorHandler(controller.getDoctorReviews)
 );
 
 reviewRouter.patch("/approveOrRejectReview/:reviewId",

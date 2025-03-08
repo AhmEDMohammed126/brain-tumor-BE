@@ -1,5 +1,5 @@
 import { Doctor,Review } from "../../../DB/Models/index.js";
-import { ErrorClass, ReviewStatus } from "../../Utils/index.js";
+import { ApiFeatures, ErrorClass, ReviewStatus } from "../../Utils/index.js";
 
 /**
  * @api {post} /reviews/addReview Add review
@@ -21,7 +21,7 @@ export const addReview=async(req, res, next) => {
         return next(new ErrorClass ("No doctor found", 404,"No doctor found"));
     };
     //check if patient go to the patients in doctor model
-    const patientVistDoctor = await Doctor.findOne({ doctorId, "patients.patientId": userId });
+    const patientVistDoctor = await Doctor.findOne({ _id:doctorId, "patients.patientId": userId });
     if(!patientVistDoctor){
         return next(new ErrorClass ("You must visit the doctor to leave a review", 400,"You must visit the doctor to leave a review"));
     }
@@ -40,18 +40,18 @@ export const addReview=async(req, res, next) => {
  */
 
 export const listPendingReviews=async(req, res, next) => {
-    const {page=1,limit=2,sort,...filters}=req.query;
+    const {page=1,limit=15,sort,...filters}=req.query;
     //find docters
     req.query.reviewStatus= ReviewStatus.PENDING;
     const model = Review;
     const ApiFeaturesInstance = new ApiFeatures(model,req.query,[
         {
             path:"userId",
-            select:"firstName lastName email -_id"
+            select:"firstName lastName email _id"
         },
         {
             path:"doctorId",
-            select:"firstName lastName rating -_id"
+            select:"firstName lastName rating _id"
         }
     ])
     .pagination()
@@ -64,10 +64,10 @@ export const listPendingReviews=async(req, res, next) => {
 }
 
 /**
- * @api {get} /reviews/getReviews/:doctorId get doctor reviews
+ * @api {get} /reviews/getDoctorReviews/:doctorId get doctor reviews
  */
 
-export const getReviews=async(req, res, next) => {
+export const getDoctorReviews=async(req, res, next) => {
 
     const doctorId = req.params.doctorId;
     const reviews = await Review.find({ doctorId, reviewStatus:ReviewStatus.APPROVED }).populate(
@@ -78,6 +78,7 @@ export const getReviews=async(req, res, next) => {
             }
         ]
     );
+
     if(reviews.length==0){
         return next(new ErrorClass ("No reviews found", 404,"No reviews found"));
     }
