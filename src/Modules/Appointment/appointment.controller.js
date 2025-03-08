@@ -73,9 +73,9 @@ export const getAppointments = async (req, res, next) => {
     
     const model = Appointment;
     const ApiFeaturesInstance = new ApiFeatures(model, req.query,[
-            { path: "Doctors", select: "firstName lastName _id",match: {isMarkedAsDeleted: false}},
-            { path: "Clinics", select: "clinicName _id" },
-            { path: "Patients",select: "firstName lastName _id",match: {isMarkedAsDeleted: false} },
+            { path: "doctorId", select: "firstName lastName _id",match: {isMarkedAsDeleted: false}},
+            { path: "clinicId", select: "clinicName _id" },
+            { path: "patientId",select: "firstName lastName _id",match: {isMarkedAsDeleted: false} },
     ])
     .pagination()
     .sort()
