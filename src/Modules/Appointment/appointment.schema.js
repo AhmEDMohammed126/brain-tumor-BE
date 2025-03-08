@@ -27,7 +27,7 @@ export const getAppointmentsSchema={
         patientId: generalRules._id.optional(),
         date: Joi.date().optional(),
         type: Joi.string().valid(...Object.values(AppointmentType)).optional(),
-        status: Joi.string().valid('pending', 'accepted', 'rejected').optional(),
+        status: Joi.string().valid(...Object.values(AppointmentStatus)).optional(),
         time: Joi.number().optional(),
 
     }),
