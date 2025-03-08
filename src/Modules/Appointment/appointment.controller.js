@@ -1,4 +1,4 @@
-import { Appointment, Clinic } from "../../../DB/Models/index.js";
+import { Appointment, Clinic, Doctor } from "../../../DB/Models/index.js";
 import { ApiFeatures, ErrorClass } from "../../Utils/index.js";
 import { sendEmailService } from "../../../services/send-email.service.js"
 import { increaseTime } from "./appointment.utils.js";
@@ -124,6 +124,19 @@ export const updateAppointmentStatus = async (req, res, next) => {
                     .status(500)
                     .json({ message: "verification email sending is failed " });
             }
+    }
+    //add patient id to doctor list
+    if(status === "confirmed"){
+        const { patientId } = appointment;
+        //check if patient is already added
+        const patientExist = await Doctor.findOne({ _id: req.authUser._id, "patients.patientId": patientId });
+        if (!patientExist) {
+            const doctor = await Doctor.findOneAndUpdate({ _id: req.authUser._id }, { $addToSet: { patients: { patientId: patientId }} }, { new: true });
+            if (!doctor) {
+                return next(new ErrorClass ("Doctor not found", 400,"Doctor not found"));
+        }
+        }
+        
     }
     res.status(200).json({ appointment });
 }

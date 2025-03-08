@@ -2,6 +2,7 @@ import express from "express";
 import { config } from "dotenv";
 import db_connection from "./DB/connection.js";
 import { routerHandler } from "./router-handler.js";
+import { cronHandler } from "./cronjobs-handler.js";
 export const main= ()=>{
 
     config();
@@ -15,7 +16,7 @@ export const main= ()=>{
     db_connection();
 
     //cron jobs
-    // cronHandler();
+    cronHandler();
 
     app.get("/", (req, res) => res.send("Hello World!"));
 

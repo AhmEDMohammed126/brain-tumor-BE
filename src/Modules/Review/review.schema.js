@@ -3,9 +3,9 @@ import { generalRules } from "../../Utils/index.js";
 
 export const addReviewSchema={
     body: Joi.object({
-        review: Joi.string().min(3).max(500).required(),
+        review: Joi.string().min(3).max(500).optional(),
         rating: Joi.number().integer().min(1).max(5).required(),
-        doctorId: generalRules._id.required(),
+        doctorId: generalRules._id.required()
     })
 };
 
