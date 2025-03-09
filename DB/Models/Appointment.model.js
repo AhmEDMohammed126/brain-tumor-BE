@@ -40,6 +40,10 @@ const appointmentSchema = new Schema({
         type: String,
         enum: Object.values(AppointmentStatus),
         default: AppointmentStatus.PENDING
+    },
+    consentGiven:{
+        type:Boolean,
+        default: false
     }
 },{timestamps:true});  
 

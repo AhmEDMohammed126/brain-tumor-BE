@@ -9,6 +9,7 @@ export const bookAppointmentSchema={
         type:Joi.string().valid(...Object.values(AppointmentType)).required(),
         date:Joi.date().greater(Date.now()).required(),
         time:Joi.string().required(),
+        consentGiven:Joi.boolean().optional()
     })
 };
 

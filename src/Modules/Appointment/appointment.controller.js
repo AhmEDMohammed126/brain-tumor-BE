@@ -8,7 +8,7 @@ import { increaseTime } from "./appointment.utils.js";
  */
 export const bookAppointment = async (req, res, next) => {
     const patientId = req.authUser._id;
-    const { doctorId, clinicId,type, date, time } = req.body;
+    const { doctorId, clinicId,type, date, time,consentGiven } = req.body;
     //check if clinic is already doctor clinic
     const clinicExist = await Clinic.findOne({_id:clinicId, doctorId: doctorId});
     if (!clinicExist) {
@@ -28,7 +28,8 @@ export const bookAppointment = async (req, res, next) => {
         type,
         date, 
         time, 
-        endTime
+        endTime,
+        consentGiven
     });
     const newAppointment = await appointmentInstance.save();
     res.status(201).json({ message: "Appointment created", newAppointment });
@@ -70,7 +71,6 @@ export const getAppointmentById = async (req, res, next) => {
 
 export const getAppointments = async (req, res, next) => {
     const { page=1, limit=20, sort,...filters } = req.query;
-    console.log(req.query.type);
     
     const model = Appointment;
     const ApiFeaturesInstance = new ApiFeatures(model, req.query,[])
