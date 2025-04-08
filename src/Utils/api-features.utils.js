@@ -21,7 +21,7 @@ export class ApiFeatures {
 
     //pagination
     pagination() {
-        const{page=1,limit=3,populate,userId}=this.query
+        const{page=1,limit=15,populate,userId}=this.query
         const skip=(page-1)*limit
         this.paginationObject = {
             page:parseInt(page),

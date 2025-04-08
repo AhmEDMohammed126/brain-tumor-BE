@@ -8,7 +8,7 @@ import { increaseTime } from "./appointment.utils.js";
  */
 export const bookAppointment = async (req, res, next) => {
     const patientId = req.authUser._id;
-    const { doctorId, clinicId,type, date, time,consentGiven } = req.body;
+    const { doctorId, clinicId,type, date, time,viewConsent,addConsent } = req.body;
     //check if clinic is already doctor clinic
     const clinicExist = await Clinic.findOne({_id:clinicId, doctorId: doctorId});
     if (!clinicExist) {
@@ -29,7 +29,8 @@ export const bookAppointment = async (req, res, next) => {
         date, 
         time, 
         endTime,
-        consentGiven
+        viewConsent,
+        addConsent
     });
     const newAppointment = await appointmentInstance.save();
     res.status(201).json({ message: "Appointment created", newAppointment });
