@@ -106,7 +106,14 @@ export const updateEncounter = async (req, res, next) => {
     if (!encounter) {
         return next(new ErrorClass("Encounter not found", 404, "NOT_FOUND"));
     }
- 
+
+    const appointment=await Appointment.findOne({_id:encounter.appointmentId,doctorId:doctorId,patientId:encounter.patientId});
+    if(!appointment){
+        return next(new ErrorClass("ther is no appointment found", 404, "NOT_FOUND"));
+    }
+    if(appointment.addConsent===false){
+        return next(new ErrorClass("You are not allowed to update this encounter", 403, "NOT ALLOWED"));
+    }
     const updateWindowHours = (Date.now() - encounter.createdAt) / (1000 * 60 * 60);
     if (updateWindowHours > 24) {
         return next(new ErrorClass(
