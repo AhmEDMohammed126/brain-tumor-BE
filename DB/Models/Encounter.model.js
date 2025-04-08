@@ -51,6 +51,11 @@ const encounterSchema = new Schema({
     notes: {
         type: String,
     },
+    updateLogs: [{
+        timestamp: { type: Date, default: Date.now },
+        changedFields: [String], // List of field names that were modified
+        oldValues: Object // Stores previous values of changed fields
+    }]
 }, {
     timestamps: true,
     toJSON: { virtuals: true },
