@@ -1,9 +1,8 @@
 import {Router} from "express"
-import { auth, authorizationMiddleware, errorHandler, multerHost, validationMiddleware } from "../../Middlewares/index.js";
+import { auth, authorizationMiddleware, errorHandler, multerHost, validationMiddleware,parseJSONField } from "../../Middlewares/index.js";
 import * as controller from "./doctor.controller.js";
 import * as validation from "./doctor.schema.js"
 import { extensions, systemRoles } from "../../Utils/index.js";
-import { parseJSONField } from "../../Middlewares/parseJSONField .js";
 
 const doctorRouter=Router();
 

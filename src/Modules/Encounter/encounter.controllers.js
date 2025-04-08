@@ -146,6 +146,20 @@ export const updateEncounter = async (req, res, next) => {
         }
         },{ new: true}
     );
+    if(req.body.medications){
+        await MedicalHistory.findOneAndUpdate(
+            { patientId: encounter.patientId },
+            { 
+                $push: { 
+                medication: req.body.medications.map(med => ({
+                    addedById: doctorId,
+                    addedByRole: "Doctor",
+                    ...med,
+                    dateAdded: new Date()
+                }))
+                }
+            },{ new: true });
+    }
 
     res.status(200).json({success: true,data: updatedEncounter});
 };
