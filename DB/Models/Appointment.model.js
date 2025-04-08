@@ -41,9 +41,13 @@ const appointmentSchema = new Schema({
         enum: Object.values(AppointmentStatus),
         default: AppointmentStatus.PENDING
     },
-    consentGiven:{
+    viewConsent:{
         type:Boolean,
         default: false
+    },
+    addConsent:{
+        type:Boolean,
+        default:false
     }
 },{timestamps:true});  
 

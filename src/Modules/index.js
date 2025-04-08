@@ -7,3 +7,5 @@ export * from "./Review/review.routes.js";
 export * from "./Storie/storie.routes.js";
 export * from "./Article/article.routes.js";
 export * from "./Appointment/appointment.routes.js";
+export * from "./Encounter/encounter.routes.js";
+export * from "./MedicalHistory/medicalHistory.routes.js";
