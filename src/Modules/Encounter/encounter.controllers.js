@@ -74,7 +74,18 @@ export const getEncounter = async (req, res, next) => {
     const {page=1,limit=20,sort,...filters}=req.query;
     //find docters
     const model = Encounter
-    const ApiFeaturesInstance = new ApiFeatures(model,req.query)
+    const ApiFeaturesInstance = new ApiFeatures(model,req.query,[
+        { 
+            path: "patientId",
+            select: "firstName lastName email",
+            match: {isMarkedAsDeleted: false}
+        },
+        {
+            path: "doctorId",
+            select: "firstName lastName email",
+            match: {isMarkedAsDeleted: false}
+        }
+    ])
     .pagination()
     .filter()
     .sort();
@@ -85,4 +96,56 @@ export const getEncounter = async (req, res, next) => {
         );
     }
     res.status(200).json({ message: "All encounters", data: encounters }); 
+};
+
+export const updateEncounter = async (req, res, next) => {
+    const { encounterId } = req.params;
+    const doctorId = req.authUser._id;
+    //Check 24-hour window
+    const encounter = await Encounter.findOne({_id:encounterId,doctorId:doctorId});
+    if (!encounter) {
+        return next(new ErrorClass("Encounter not found", 404, "NOT_FOUND"));
+    }
+ 
+    const updateWindowHours = (Date.now() - encounter.createdAt) / (1000 * 60 * 60);
+    if (updateWindowHours > 24) {
+        return next(new ErrorClass(
+            "Encounters can only be updated within 24 hours of creation",
+            403,
+            "UPDATE_WINDOW_EXPIRED"
+        ));
+    }
+    // Validate allowed fields
+    const allowedFields = ['complaint', 'diagnosis', 'medications', 'orders', 'notes'];
+    const updates = Object.keys(req.body).filter(key => allowedFields.includes(key));
+    
+    if (updates.length === 0) {
+        return next(new ErrorClass(
+            "Only complaint, diagnosis, medications, orders, and notes can be updated",
+            400,
+            "INVALID UPDATE FIELDS"
+        ));
+    }
+
+    // Prepare update log
+    const oldValues = {};
+    updates.forEach(field => {
+        oldValues[field] = encounter[field]; // Capture old values
+    });
+
+  // Update document
+    const updatedEncounter = await Encounter.findByIdAndUpdate(
+        encounterId,
+        {
+            $set: req.body,
+            $push: {
+            updateLogs: {
+                changedFields: updates,
+                oldValues
+            }
+        }
+        },{ new: true}
+    );
+
+    res.status(200).json({success: true,data: updatedEncounter});
 };

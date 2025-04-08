@@ -20,4 +20,11 @@ encounterRouter.get("/getEncounter",
     errorHandler(controller.getEncounter)
 );
 
+encounterRouter.put("/updateEncounter/:encounterId",
+    errorHandler(auth()),
+    errorHandler(authorizationMiddleware([systemRoles.DOCTOR])),
+    errorHandler(validationMiddleware(validation.updateEncounterSchema)),
+    errorHandler(controller.updateEncounter)
+)
+
 export {encounterRouter};

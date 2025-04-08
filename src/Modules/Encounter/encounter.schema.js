@@ -34,3 +34,27 @@ export const getEncounterSchema={
         patientId: generalRules._id.optional(),
     })
 };
+
+export const updateEncounterSchema={
+    params:Joi.object({
+        encounterId:generalRules._id.required(),
+    }),
+    body:Joi.object({
+        diagnosis: Joi.array().items(
+            Joi.object({
+            diagnoseName: Joi.string().optional(),
+            diagnoseInfo: Joi.string().optional()
+            })
+    ),
+    medications: Joi.array().items(
+        Joi.object({
+        name: Joi.string().optional(),
+        dosage: Joi.string().optional(),
+        frequency: Joi.string().optional(),
+        })
+    ),
+    complaint: Joi.string().optional(),
+    orders: Joi.array().items(Joi.string()).optional(),
+    notes: Joi.string().optional()
+    })
+}
