@@ -16,4 +16,16 @@ medicalHistoryRouter.post(
     errorHandler(controller.createMedicalHistory)
 );
 
+medicalHistoryRouter.get("/getPatientMedicalHistory",
+    errorHandler(auth()),
+    errorHandler(authorizationMiddleware([systemRoles.PATIENT])),
+    errorHandler(controller.getPatientMedicalHistory)
+);
+
+medicalHistoryRouter.get("/doctorViewPatientHistory/:patientId",
+    errorHandler(auth()),
+    errorHandler(authorizationMiddleware([systemRoles.DOCTOR])),
+    errorHandler(controller.doctorViewPatientHistory)
+);
+
 export {medicalHistoryRouter};
