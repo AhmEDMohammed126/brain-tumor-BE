@@ -105,7 +105,7 @@ export const updateEncounter = async (req, res, next) => {
     const encounter = await Encounter.findOne({_id:encounterId,doctorId:doctorId});
     if (!encounter) {
         return next(new ErrorClass("Encounter not found", 404, "NOT_FOUND"));
-    }
+    }    
 
     const appointment=await Appointment.findOne({_id:encounter.appointmentId,doctorId:doctorId,patientId:encounter.patientId});
     if(!appointment){
@@ -153,7 +153,32 @@ export const updateEncounter = async (req, res, next) => {
         }
         },{ new: true}
     );
+    //handel old values at medical History
+
     if(req.body.medications){
+        const toleranceMs = 24 * 60 * 60 * 1000;
+        //remove matching old ones
+        for (const oldMed of encounter.medications) {
+            const encounterTime = new Date(oldMed.dateAdded);
+            const lowerBound = new Date(encounterTime.getTime() - toleranceMs);
+            const upperBound = new Date(encounterTime.getTime() + toleranceMs);
+            await MedicalHistory.updateOne(
+                { patientId: encounter.patientId },
+                {
+                    $pull: {
+                        medication: {
+                            name: oldMed.name,
+                            dosage: oldMed.dosage,
+                            frequency: oldMed.frequency,
+                            addedById: doctorId,
+                            addedByRole: "Doctor",
+                            dateAdded: { $lte: upperBound }
+                        }
+                    }
+                }
+            );
+        }
+        //push new
         await MedicalHistory.findOneAndUpdate(
             { patientId: encounter.patientId },
             { 

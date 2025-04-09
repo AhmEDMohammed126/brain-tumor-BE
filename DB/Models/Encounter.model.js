@@ -42,6 +42,7 @@ const encounterSchema = new Schema({
             frequency: {
                 type: String,
             },
+            dateAdded: { type: Date, default: Date.now },   
         },
     ],
     orders: {
