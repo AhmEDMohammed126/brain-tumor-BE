@@ -161,3 +161,43 @@ export const cancelAppointment = async (req, res, next) => {
 
     res.status(200).json({ message:'Appointment cancelled' });
 };
+
+/**
+ * @api {put} /appointments/updateConsentStatus/:doctorId
+ * @description Update consent status
+ * @returns {object} return response {message, data}
+ */
+export const updateConsentStatus = async (req, res, next) => {
+    const patientId= req.authUser._id;
+    const {doctorId}= req.params;
+    const { viewConsent, addConsent } = req.body;
+    const appointment = await Appointment.findOne({ doctorId, patientId }).sort({ createdAt: -1 });
+    if (!appointment) {
+        return next(new ErrorClass(
+            "No active appointments found with this doctor",
+            404,
+            "APPOINTMENT NOT FOUND"
+        ));
+    }
+    // 2. Validate at least one consent is provided
+    if (viewConsent === undefined && addConsent === undefined) {
+        return next(new ErrorClass(
+        "At least one consent value must be provided",
+        400,
+        "MISSING_CONSENT_VALUES"
+        ));
+    }
+
+    // 3. Partial update handling
+    if (viewConsent !== undefined) {
+        appointment.viewConsent = viewConsent;
+    }
+    
+    if (addConsent !== undefined) {
+        appointment.addConsent = addConsent;
+    }
+
+    await appointment.save();
+    
+    res.status(200).json({ appointment });
+}   

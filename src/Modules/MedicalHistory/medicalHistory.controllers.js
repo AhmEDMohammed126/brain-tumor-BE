@@ -100,7 +100,8 @@ export const doctorViewPatientHistory = async (req, res, next) => {
     const { patientId } = req.params;
     const doctorId = req.authUser._id;
     //get appointment
-    const appointment = await Appointment.findOne({ doctorId, patientId, status: { $in: ["confirmed", "completed"] } });
+    const appointment = await Appointment.findOne({ doctorId, patientId, status: { $in: ["confirmed", "completed"] } })
+    .sort({ createdAt: -1 });
     if (!appointment) {
         return next(new ErrorClass("No appointment found", 404, "NOT FOUND"));
     }

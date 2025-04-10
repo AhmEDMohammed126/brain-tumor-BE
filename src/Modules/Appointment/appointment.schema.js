@@ -49,3 +49,13 @@ export const cancelAppointmentSchema={
         appointmentId:generalRules._id.required()
     })
 };
+
+export const updateConsentStatusSchema={
+    params:Joi.object({
+        doctorId:generalRules._id.required()
+    }),
+    body:Joi.object({
+        viewConsent:Joi.boolean().optional(),
+        addConsent:Joi.boolean().optional(),
+    })
+};
