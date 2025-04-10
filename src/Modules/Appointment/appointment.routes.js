@@ -42,4 +42,11 @@ appointmentRouter.delete("/cancelAppointment/:appointmentId",
     errorHandler(controller.cancelAppointment)
 );
 
+appointmentRouter.put("/updateConsentStatus/:doctorId",
+    errorHandler(auth()),
+    errorHandler(authorizationMiddleware([systemRoles.PATIENT])),
+    errorHandler(validationMiddleware(validation.updateConsentStatusSchema)),
+    errorHandler(controller.updateConsentStatus)
+)
+
 export{ appointmentRouter }
