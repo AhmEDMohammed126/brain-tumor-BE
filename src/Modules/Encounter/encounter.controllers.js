@@ -28,7 +28,11 @@ export const createEncounter = async (req, res, next) => {
     if(!appointment){
         return next(new ErrorClass("ther is no appointment found", 404, "NOT_FOUND"));
     }
-  // 2. Create encounter
+    const isEncounterExist= await Encounter.findOne({appointmentId:appointment._id});
+    if(isEncounterExist){
+        return next(new ErrorClass("Encounter already exist", 404, "You can't add encounter twice"));
+    }
+    // 2. Create encounter
     const encounter = new Encounter({
         patientId,
         doctorId,
