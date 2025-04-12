@@ -16,7 +16,7 @@ export const createEncounter = async (req, res, next) => {
         notes
     }= req.body;
 
-  const doctorId = req.authUser._id;
+    const doctorId = req.authUser._id;
 
   // 1. Validate exists
     const patient = await Patient.findById(patientId);
@@ -48,19 +48,22 @@ export const createEncounter = async (req, res, next) => {
                 $push: { 
                 encounter: { encounterId: encounter._id }}},{ new: true });
         }
-    await MedicalHistory.findOneAndUpdate(
-        { patientId },
-        { 
-            $push: { 
-            encounter: { encounterId: encounter._id },
-            medication: medications.map(med => ({
-                addedById: doctorId,
-                addedByRole: "Doctor",
-                ...med,
-                dateAdded: new Date()
-            }))
-            }
-        },{ new: true });
+    else{
+        await MedicalHistory.findOneAndUpdate(
+            { patientId },
+            { 
+                $push: { 
+                encounter: { encounterId: encounter._id },
+                medication: medications.map(med => ({
+                    addedById: doctorId,
+                    addedByRole: "Doctor",
+                    ...med,
+                    dateAdded: new Date()
+                }))
+                }
+            },{ new: true });
+    }
+
     await encounter.save();
     res.status(201).json({success: true,data: encounter});
 };
@@ -111,9 +114,7 @@ export const updateEncounter = async (req, res, next) => {
     if(!appointment){
         return next(new ErrorClass("ther is no appointment found", 404, "NOT_FOUND"));
     }
-    if(appointment.addConsent===false){
-        return next(new ErrorClass("You are not allowed to update this encounter", 403, "NOT ALLOWED"));
-    }
+
     const updateWindowHours = (Date.now() - encounter.createdAt) / (1000 * 60 * 60);
     if (updateWindowHours > 24) {
         return next(new ErrorClass(
@@ -154,8 +155,7 @@ export const updateEncounter = async (req, res, next) => {
         },{ new: true}
     );
     //handel old values at medical History
-
-    if(req.body.medications){
+    if(req.body.medications && appointment.addConsent===true){
         const toleranceMs = 24 * 60 * 60 * 1000;
         //remove matching old ones
         for (const oldMed of encounter.medications) {
