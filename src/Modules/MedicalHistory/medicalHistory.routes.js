@@ -28,4 +28,13 @@ medicalHistoryRouter.get("/doctorViewPatientHistory/:patientId",
     errorHandler(controller.doctorViewPatientHistory)
 );
 
+medicalHistoryRouter.put("/addToMedicalHistory/:patientId",
+    errorHandler(auth()),
+    errorHandler(authorizationMiddleware([systemRoles.PATIENT,systemRoles.DOCTOR])),
+    errorHandler(multerHost({ allowedExtensions: [...extensions.Documents] }).fields([{ name: "medicalDocuments", maxCount: 5 }])),
+    parseJSONField(["chronicDiseases","allergy","pastSurgeries","familyHistory","medication","lifeStyle"]),
+    errorHandler(validationMiddleware(validation.addToMedicalHistorySchema)),
+    errorHandler(controller.addToMedicalHistory)
+);
+
 export {medicalHistoryRouter};
