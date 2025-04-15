@@ -143,7 +143,11 @@ export const getDoctors=async (req, res, next) => {
     //find docters
     const model = Doctor
     req.query.isDoctorVerified = true;
-    req.query.isMarkedAsDeleted = false;
+    if(req.query.isMarkedAsDeleted){
+        req.query.isMarkedAsDeleted = true;
+    }else{
+        req.query.isMarkedAsDeleted = false;
+    }
     req.query.isEmailVerified = true;
     //TODO: return related articals
     const ApiFeaturesInstance = new ApiFeatures(model,req.query,[
