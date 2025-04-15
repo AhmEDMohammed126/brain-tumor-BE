@@ -14,14 +14,24 @@ export const createMedicalHistory = async (req, res, next) => {
     if (existingMedicalHistory) {
         return next(new ErrorClass("Medical history already exists for this patient", 400, "DUPLICATE_ENTRY"));
     }
-        const pdfFile = req.files?.medicalDocuments?.[0];
-        if(!pdfFile)return next(new ErrorClass('Please upload a pdf',400,'Please upload a pdf'));
-        const customId = nanoid(4);
-        const { secure_url , public_id  } = await uploadFile({
+    const uploadedDocs = [];
+    if (req.files?.medicalDocuments>0 ) {
+
+        for (const pdfFile of req.files?.medicalDocuments) {
+            const customId = nanoid(4);
+            const { secure_url, public_id } = await uploadFile({
                 file: pdfFile.path,
                 folder: `${process.env.UPLOADS_FOLDER}/MedicalHistory/medicalDocuments/${customId}`,
                 resource_type: 'raw',
             });
+        uploadedDocs.push({
+            customId,
+            secure_url,
+            public_id,
+        });
+    }
+}
+    
   // Build medical history object
     const medicalHistoryInstance = new MedicalHistory({
         patientId,
@@ -39,9 +49,7 @@ export const createMedicalHistory = async (req, res, next) => {
         familyHistory: familyHistory?.map(item => ({
             ...item,
         })),
-        medicalDocuments:[
-            { customId,secure_url , public_id  }
-        ],
+        medicalDocuments: uploadedDocs || [],
         medication: medication?.map(item => ({
             ...item,
             addedById: patientId,
@@ -141,4 +149,106 @@ export const doctorViewPatientHistory = async (req, res, next) => {
     else if(appointment.addConsent){
         res.status(200).json({ message: "Medical history",ALLOWEDRole:"alloewd to add", data: medicalHistory });
             }
-}        
+}
+
+/**
+ * @api {post} /medicalHistories/addToMedicalHistory
+ * @returns  {object} return response {message, data}
+ * @description Add to Medical History
+ */
+
+export const addToMedicalHistory = async (req, res, next) => {
+    const { patientId } = req.params;
+    const authUser = req.authUser;
+    
+    const isDoctor = authUser.userType === 'Doctor';
+
+    const medicalHistory = await MedicalHistory.findOne({ patientId });
+    if (!medicalHistory) {
+        return next(new ErrorClass("Medical history not found", 404, "NOT_FOUND"));
+    }
+
+    if (!isDoctor && authUser._id.toString() !== patientId) {
+        return next(new ErrorClass("Unauthorized access", 403, "FORBIDDEN"));
+    }
+
+    const doctorAllowed = ['allergy', 'chronicDiseases'];
+    const patientAllowed = ['allergy', 'chronicDiseases', 'medicalDocuments', 'pastSurgeries', 'medication', 'lifeStyle', 'familyHistory'];
+    const allowedFields = isDoctor ? doctorAllowed : patientAllowed;
+    const updates = Object.keys(req.body).filter(key => allowedFields.includes(key));
+    // Check for unauthorized fields for doctor
+    if(isDoctor){
+    const unauthorizedFields = Object.keys(req.body).filter(key => !doctorAllowed.includes(key));
+
+    if (unauthorizedFields.length > 0 || req.files?.medicalDocuments?.length > 0) {
+        return next(new ErrorClass(
+            `Doctors can only add: ${doctorAllowed.join(', ')}. Invalid fields: ${unauthorizedFields.join(', ')}`,
+            403,
+            "UNAUTHORIZED_FIELDS"
+        ));
+    }
+}
+    const pushData = {};
+
+    for (const field of updates) {
+        const fieldValue = req.body[field];
+
+        let entries;
+
+        if (['allergy', 'chronicDiseases', 'medication'].includes(field)) {
+            entries = fieldValue.map(entry => ({
+                ...entry,
+                addedById: authUser._id,
+                addedByRole: isDoctor ? 'Doctor' : 'Patient',
+                dateAdded: new Date()
+            }));
+        } else if (['pastSurgeries', 'familyHistory'].includes(field)) {
+            entries = fieldValue.map(entry => ({
+                ...entry,
+                dateAdded: new Date()
+            }));
+        } else if (field === 'lifeStyle') {
+            entries = fieldValue; // array of strings
+        } else {
+            return next(new ErrorClass(`Field ${field} is not allowed`, 400, "INVALID_FIELD"));
+        }
+
+        pushData[field] = { $each: entries };
+    }
+
+    // Handle medicalDocuments upload separately
+    if (allowedFields.includes('medicalDocuments') && req.files?.medicalDocuments?.length > 0) {
+        const uploadedDocs = [];
+
+        for (const file of req.files.medicalDocuments) {
+            const customId = nanoid(4);
+
+            const { secure_url, public_id } = await uploadFile({
+                file: file.path,
+                folder: `${process.env.UPLOADS_FOLDER}/MedicalHistory/medicalDocuments/${customId}`,
+                resource_type: 'raw',
+            });
+
+            uploadedDocs.push({
+                customId,
+                secure_url,
+                public_id,
+                dateAdded: new Date()
+            });
+        }
+
+        pushData.medicalDocuments = { $each: uploadedDocs };
+    }
+
+    const updatedHistory = await MedicalHistory.findByIdAndUpdate(
+        medicalHistory._id,
+        { $push: pushData },
+        { new: true, runValidators: true }
+    );
+
+    res.status(200).json({
+        success: true,
+        message: "Medical history updated",
+        data: updatedHistory
+    });
+};
