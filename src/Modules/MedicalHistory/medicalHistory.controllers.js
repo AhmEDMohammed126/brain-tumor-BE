@@ -143,8 +143,8 @@ export const getPatientMedicalHistory = async (req, res, next) => {
             patientId: medicalHistory.patientId,
             allergy: decryptedHistory.allergy || [],
             chronicDiseases: decryptedHistory.chronicDiseases || [],
-            pastSurgeries: medicalHistory.pastSurgeries || [],
-            familyHistory: medicalHistory.familyHistory || [],
+            pastSurgeries: decryptedHistory.pastSurgeries || [],
+            familyHistory: decryptedHistory.familyHistory || [],
             medicalDocuments: medicalHistory.medicalDocuments || [],
             medication: decryptedHistory.medication || [],
             lifeStyle: medicalHistory.lifeStyle || {},
@@ -213,7 +213,7 @@ export const doctorViewPatientHistory = async (req, res, next) => {
         })),
         pastSurgeries: medicalHistory.pastSurgeries?.map(item => ({
             ...item,
-            name: decrypt(item.name), // Decrypt surgery name
+            name: decrypt(item.name), 
             notes: decrypt(item.notes) // Decrypt notes
         })),
         medication: medicalHistory.medication?.map(item => ({
@@ -234,8 +234,8 @@ export const doctorViewPatientHistory = async (req, res, next) => {
         patientId: medicalHistory.patientId,
         allergy: decryptedHistory.allergy || [],
         chronicDiseases: decryptedHistory.chronicDiseases || [],
-        pastSurgeries: medicalHistory.pastSurgeries || [],
-        familyHistory: medicalHistory.familyHistory || [],
+        pastSurgeries: decryptedHistory.pastSurgeries || [],
+        familyHistory: decryptedHistory.familyHistory || [],
         medicalDocuments: medicalHistory.medicalDocuments || [],
         medication: decryptedHistory.medication || [],
         lifeStyle: medicalHistory.lifeStyle || {},

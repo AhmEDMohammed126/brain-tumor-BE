@@ -4,7 +4,7 @@ dotenv.config();
 
 const ALGORITHM = 'aes-256-cbc';
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY; // Must be 32 chars
-const SALT = 'fixed-salt-value'; // Use a fixed salt for key derivation
+const SALT = 'fixed-salt-value'; 
 
 // Key derivation (must be consistent)
 const key = scryptSync(ENCRYPTION_KEY, SALT, 32);
