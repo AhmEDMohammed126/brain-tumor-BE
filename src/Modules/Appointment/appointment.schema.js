@@ -7,7 +7,7 @@ export const bookAppointmentSchema={
         doctorId:generalRules._id.required(), 
         clinicId:generalRules._id.required(), 
         type:Joi.string().valid(...Object.values(AppointmentType)).required(),
-        date:Joi.date().greater(Date.now()).required(),
+        date:Joi.date().min(new Date().setHours(0, 0, 0, 0)).required(),
         time:Joi.string().required(),
         viewConsent:Joi.boolean().optional(),
         addConsent:Joi.boolean().optional()

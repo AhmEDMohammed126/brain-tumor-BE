@@ -1,9 +1,12 @@
 import { nanoid } from "nanoid";
 import { Appointment, MedicalHistory } from "../../../DB/Models/index.js";
-import { ErrorClass } from "../../Utils/error-class.utils.js";
-import { uploadFile } from "../../Utils/cloudinary.utils.js";
+import { ErrorClass , uploadFile , encrypt , decrypt } from "../../Utils/index.js";
 
-//create medical history
+/**
+ * @description Create a new medical history
+ * @route POST /medicalHistories/createMedicalHistory
+ * 
+ */
 
 export const createMedicalHistory = async (req, res, next) => {
     const { allergy, chronicDiseases, pastSurgeries, familyHistory, medication, lifeStyle } = req.body;
@@ -15,7 +18,7 @@ export const createMedicalHistory = async (req, res, next) => {
         return next(new ErrorClass("Medical history already exists for this patient", 400, "DUPLICATE_ENTRY"));
     }
     const uploadedDocs = [];
-    if (req.files?.medicalDocuments>0 ) {
+    if (req.files?.medicalDocuments?.length > 0 ) {
 
         for (const pdfFile of req.files?.medicalDocuments) {
             const customId = nanoid(4);
@@ -34,29 +37,37 @@ export const createMedicalHistory = async (req, res, next) => {
     
   // Build medical history object
     const medicalHistoryInstance = new MedicalHistory({
-        patientId,
-        allergy: allergy?.map(item => ({
-            ...item,
-            addedById: patientId,
-            addedByRole: "Patient",
-        })),
-        chronicDiseases: chronicDiseases?.map(item => ({
-            ...item,
-            addedById: patientId,
-            addedByRole: "Patient",
-        })),
-        pastSurgeries,
-        familyHistory: familyHistory?.map(item => ({
-            ...item,
-        })),
-        medicalDocuments: uploadedDocs || [],
-        medication: medication?.map(item => ({
-            ...item,
-            addedById: patientId,
-            addedByRole: "Patient",
-        })),
-        lifeStyle
-    });
+    patientId, 
+    allergy: allergy?.map(item => ({
+        allergyName: encrypt(item.allergyName), 
+        addedById: patientId,
+        addedByRole: "Patient",
+    })),
+    chronicDiseases: chronicDiseases?.map(item => ({
+        chronicName: encrypt(item.chronicName), 
+        addedById: patientId,
+        addedByRole: "Patient",
+    })),
+    pastSurgeries: pastSurgeries?.map(item => ({
+        name: encrypt(item.name), 
+        date: item.date,
+        notes: encrypt(item.notes || ''),
+    })),
+    familyHistory: familyHistory?.map(item => ({
+        relation: item.relation,
+        age: item.age,
+        condition: encrypt(item.condition),
+    })),
+    medicalDocuments: uploadedDocs || [],
+    medication: medication?.map(item => ({
+        name: encrypt(item.name), 
+        dosage: encrypt(item.dosage), 
+        frequency: item.frequency,
+        addedById: patientId,
+        addedByRole: "Patient",
+    })),
+    lifeStyle
+});
 
   // Save to database
     const medicalHistory=await medicalHistoryInstance.save()
@@ -90,13 +101,59 @@ export const getPatientMedicalHistory = async (req, res, next) => {
                 path: 'chronicDiseases.addedById',
                 select: 'firstName lastName email role'
             }
-        ]);
+        ]).lean();
+
         if (!medicalHistory) {
             return next(
                 new ErrorClass("No medical history found", 404, "NOT_FOUND")
             );
         }
-    res.status(200).json({ message: "Medical history", data: medicalHistory });
+
+        // Decrypt sensitive fields
+        const decryptedHistory = {
+            ...medicalHistory,
+            allergy: medicalHistory.allergy?.map(item => ({
+                ...item,
+                allergyName: decrypt(item.allergyName) 
+            })),
+            chronicDiseases: medicalHistory.chronicDiseases?.map(item => ({
+                ...item,
+                chronicName: decrypt(item.chronicName) 
+            })),
+            pastSurgeries: medicalHistory.pastSurgeries?.map(item => ({
+                ...item,
+                name: decrypt(item.name), 
+                notes: decrypt(item.notes) 
+            })),
+            medication: medicalHistory.medication?.map(item => ({
+                ...item,
+                name: decrypt(item.name), 
+                dosage: decrypt(item.dosage) 
+            })),
+            familyHistory: medicalHistory.familyHistory?.map(item => ({
+                ...item,
+                condition: decrypt(item.condition)
+            })),
+            
+        };
+
+        // handel response
+        const cleanResponse = {
+            _id: medicalHistory._id,
+            patientId: medicalHistory.patientId,
+            allergy: decryptedHistory.allergy || [],
+            chronicDiseases: decryptedHistory.chronicDiseases || [],
+            pastSurgeries: medicalHistory.pastSurgeries || [],
+            familyHistory: medicalHistory.familyHistory || [],
+            medicalDocuments: medicalHistory.medicalDocuments || [],
+            medication: decryptedHistory.medication || [],
+            lifeStyle: medicalHistory.lifeStyle || {},
+            encounter: medicalHistory.encounter || [],
+            createdAt: medicalHistory.createdAt,
+            updatedAt: medicalHistory.updatedAt
+        };
+
+    res.status(200).json({ message: "Medical history", data: cleanResponse });
 };
 
 /**
@@ -136,18 +193,62 @@ export const doctorViewPatientHistory = async (req, res, next) => {
             path: 'chronicDiseases.addedById',
             select: 'firstName lastName email role'
         }
-        ]);
+        ]).lean();
     if (!medicalHistory) {
         return next(
             new ErrorClass("No medical history found", 404, "NOT FOUND")
         );
     }
 
+    // Decrypt sensitive fields
+    const decryptedHistory = {
+        ...medicalHistory,
+        allergy: medicalHistory.allergy?.map(item => ({
+            ...item,
+            allergyName: decrypt(item.allergyName) // Decrypt allergy name
+        })),
+        chronicDiseases: medicalHistory.chronicDiseases?.map(item => ({
+            ...item,
+            chronicName: decrypt(item.chronicName) // Decrypt disease name
+        })),
+        pastSurgeries: medicalHistory.pastSurgeries?.map(item => ({
+            ...item,
+            name: decrypt(item.name), // Decrypt surgery name
+            notes: decrypt(item.notes) // Decrypt notes
+        })),
+        medication: medicalHistory.medication?.map(item => ({
+            ...item,
+            name: decrypt(item.name), // Decrypt medication name
+            dosage: decrypt(item.dosage) // Decrypt dosage
+        })),
+        familyHistory: medicalHistory.familyHistory?.map(item => ({
+            ...item,
+            condition: decrypt(item.condition) // Decrypt condition
+        })),
+        
+    };
+
+    // handel response
+    const cleanResponse = {
+        _id: medicalHistory._id,
+        patientId: medicalHistory.patientId,
+        allergy: decryptedHistory.allergy || [],
+        chronicDiseases: decryptedHistory.chronicDiseases || [],
+        pastSurgeries: medicalHistory.pastSurgeries || [],
+        familyHistory: medicalHistory.familyHistory || [],
+        medicalDocuments: medicalHistory.medicalDocuments || [],
+        medication: decryptedHistory.medication || [],
+        lifeStyle: medicalHistory.lifeStyle || {},
+        encounter: medicalHistory.encounter || [],
+        createdAt: medicalHistory.createdAt,
+        updatedAt: medicalHistory.updatedAt
+    };
+
     if (appointment.viewConsent && !appointment.addConsent ) {
-        res.status(200).json({ message: "Medical history",ALLOWEDRole:"only View", data: medicalHistory });
+        res.status(200).json({ message: "Medical history",ALLOWEDRole:"only View", data: cleanResponse });
         }
     else if(appointment.addConsent){
-        res.status(200).json({ message: "Medical history",ALLOWEDRole:"alloewd to add", data: medicalHistory });
+        res.status(200).json({ message: "Medical history",ALLOWEDRole:"alloewd to add", data: cleanResponse });
             }
 }
 
@@ -171,11 +272,11 @@ export const addToMedicalHistory = async (req, res, next) => {
     if (!isDoctor && authUser._id.toString() !== patientId) {
         return next(new ErrorClass("Unauthorized access", 403, "FORBIDDEN"));
     }
-
+    // Field Permission Management
     const doctorAllowed = ['allergy', 'chronicDiseases'];
     const patientAllowed = ['allergy', 'chronicDiseases', 'medicalDocuments', 'pastSurgeries', 'medication', 'lifeStyle', 'familyHistory'];
     const allowedFields = isDoctor ? doctorAllowed : patientAllowed;
-    const updates = Object.keys(req.body).filter(key => allowedFields.includes(key));
+    
     // Check for unauthorized fields for doctor
     if(isDoctor){
     const unauthorizedFields = Object.keys(req.body).filter(key => !doctorAllowed.includes(key));
@@ -188,30 +289,53 @@ export const addToMedicalHistory = async (req, res, next) => {
         ));
     }
 }
+    //Prepare Encrypted Updates
     const pushData = {};
-
+    const updates = Object.keys(req.body).filter(key => allowedFields.includes(key));
     for (const field of updates) {
         const fieldValue = req.body[field];
 
-        let entries;
+        let entries = fieldValue.map(entry => {
+            const baseEntry = {
+                ...entry,
+                dateAdded: new Date()
+            };
 
-        if (['allergy', 'chronicDiseases', 'medication'].includes(field)) {
-            entries = fieldValue.map(entry => ({
-                ...entry,
-                addedById: authUser._id,
-                addedByRole: isDoctor ? 'Doctor' : 'Patient',
-                dateAdded: new Date()
-            }));
-        } else if (['pastSurgeries', 'familyHistory'].includes(field)) {
-            entries = fieldValue.map(entry => ({
-                ...entry,
-                dateAdded: new Date()
-            }));
-        } else if (field === 'lifeStyle') {
-            entries = fieldValue; // array of strings
-        } else {
-            return next(new ErrorClass(`Field ${field} is not allowed`, 400, "INVALID_FIELD"));
-        }
+            // Add role-based metadata
+            if (['allergy', 'chronicDiseases', 'medication'].includes(field)) {
+                baseEntry.addedById = authUser._id;
+                baseEntry.addedByRole = isDoctor ? 'Doctor' : 'Patient';
+            }
+
+            // Encrypt sensitive fields
+            switch(field) {
+                case 'allergy':
+                    return { ...baseEntry, allergyName: encrypt(entry.allergyName) };
+                case 'chronicDiseases':
+                    return { ...baseEntry, chronicName: encrypt(entry.chronicName) };
+                case 'medication':
+                    return { 
+                        ...baseEntry, 
+                        name: encrypt(entry.name),
+                        dosage: encrypt(entry.dosage)
+                    };
+                case 'pastSurgeries':
+                    return {
+                        ...baseEntry,
+                        name: encrypt(entry.name),
+                        notes: encrypt(entry.notes || '')
+                    };
+                case 'familyHistory':
+                    return {
+                        ...baseEntry,
+                        condition: encrypt(entry.condition)
+                    };
+                case 'lifeStyle':
+                    return entry;
+                default:
+                    return baseEntry;
+            }
+        });
 
         pushData[field] = { $each: entries };
     }
@@ -244,7 +368,7 @@ export const addToMedicalHistory = async (req, res, next) => {
         medicalHistory._id,
         { $push: pushData },
         { new: true, runValidators: true }
-    );
+    ).lean();
 
     res.status(200).json({
         success: true,
