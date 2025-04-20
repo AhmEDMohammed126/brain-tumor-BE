@@ -11,8 +11,8 @@ export const sendEmailService = async ({
         port: 587,
         secure: false,
         auth: {
-        user: "ahmudmohamed78s@gmail.com",
-        pass: "noyqsnlvxxeedahw",
+        user: "neurolight001@gmail.com",
+        pass: "vahl kzfm qvgj xpym",
         },
         service: "gmail",
         tls: {
