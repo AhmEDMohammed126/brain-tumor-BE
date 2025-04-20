@@ -6,3 +6,4 @@ export * from "./general-rules.utils.js"
 export * from "./system-roles.utils.js";
 export * from "./defineUserType.utils.js";
 export * from "./enums.utils.js";
+export * from "./crypto.utils.js";
