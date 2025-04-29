@@ -13,7 +13,8 @@ export const AppointmentStatus = {
     PENDING: "pending",
     CONFIRMED: "confirmed",
     COMPLETED:"completed",
-    CANCELLED: "cancelled",
+    IGNORED:"ignored",
+    CANCELLED: "cancelled"
 };
 
 export const AppointmentType = {
