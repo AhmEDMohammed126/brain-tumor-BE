@@ -28,9 +28,9 @@ export const generalRules = {
     'any.required': 'Email is required'
   }),
   password: Joi.string()
-    .pattern(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$!%*?&])[A-Za-z\d$!%*?&]{8,}$/
-    )
+  .pattern(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$!%*?&])[A-Za-z\d@#$!%*?&]{8,}$/
+  )
     .messages({
       "string.pattern.base":
         "Password must have at least one lowercase letter, one uppercase letter, one number and one special character",
