@@ -1,5 +1,5 @@
 import { scheduleJob } from "node-schedule";
-import {Doctor, Review } from "../../DB/Models/index.js";
+import {Appointment, Doctor, Review } from "../../DB/Models/index.js";
 import { ReviewStatus } from "./enums.utils.js";
 //this function must be called in index.js 
 export const doctorRatingCron=()=>{
@@ -20,6 +20,33 @@ export const doctorRatingCron=()=>{
                 doctor.rating=avgRting;
                 await doctor.save();
             }
+        }
+    });
+}
+
+//cron for appointment status
+export const updateAppointmentStatus=()=>{
+    scheduleJob('0 0 * * *', async () => {
+        console.log(' Checking yesterday\'s appointments...');
+        const now = new Date();
+        const yesterdayStart = new Date(now);
+        yesterdayStart.setDate(yesterdayStart.getDate() -1 );
+        yesterdayStart.setHours(0, 0, 0, 0);
+        const yesterdayEnd = new Date(yesterdayStart);
+        
+        yesterdayEnd.setHours(23, 59, 59, 999);
+        
+        try {
+            const result = await Appointment.updateMany(
+                {
+                    date: { $gte: yesterdayStart, $lte: yesterdayEnd },
+                    status: { $in: ['pending', 'confirmed'] }
+                },
+                { $set: { status: 'ignored' } }
+            );
+            console.log(`✅ ${result.modifiedCount} appointments marked as 'IGNORED'`);
+            } catch (err) {
+                console.error('❌ Error updating appointments:', err);
         }
     });
 }
