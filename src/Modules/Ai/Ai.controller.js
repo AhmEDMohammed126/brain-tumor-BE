@@ -7,7 +7,7 @@ export const predict = async (req, res) => {
         const formData = new FormData();
         formData.append("image", fs.createReadStream(req.file.path));
 
-        const response = await fetch("https://354b-104-199-157-214.ngrok-free.app/predict", {
+        const response = await fetch("https://katydid-noble-hagfish.ngrok-free.app/predict", {
             method: "POST",
             body: formData,
             headers: formData.getHeaders()
