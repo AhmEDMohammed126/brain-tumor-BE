@@ -20,6 +20,7 @@ export const routerHandler = (app) => {
     app.use("/appointments",router.appointmentRouter);
     app.use("/encounters",router.encounterRouter);
     app.use("/medicalHistories",router.medicalHistoryRouter);
+    app.use("/geminiChat",router.GeminiChatRouter);
     
     app.use("*",(req,res,next)=>
         res.status(404).json({message:"Route Not Found"})
