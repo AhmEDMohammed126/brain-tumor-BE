@@ -9,3 +9,4 @@ export * from "./Appointment/appointment.routes.js";
 export * from "./Encounter/encounter.routes.js";
 export * from "./MedicalHistory/medicalHistory.routes.js";
 export * from "./GeminiChat/GeminiChat.route.js";
+export * from "./Ai/Ai.routes.js";
