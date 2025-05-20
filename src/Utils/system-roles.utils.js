@@ -1,5 +1,5 @@
 export const systemRoles = {
-    BUYER: "Doctor",
+    DOCTOR: "Doctor",
     PATIENT: "Patient",
     ADMIN: "Admin",
 };

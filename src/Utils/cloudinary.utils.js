@@ -20,7 +20,7 @@ export const cloudinaryConfig = () => {
  */
 
 
-export const uploadFile = async ({ file, folder = "brain-tumor", publicId }) => {
+export const uploadFile = async ({ file, folder = "brain-tumor", publicId,resource_type = 'image'  }) => {
   if (!file) {
     return new ErrorClass(
       "Please upload an image",
@@ -29,7 +29,7 @@ export const uploadFile = async ({ file, folder = "brain-tumor", publicId }) => 
     )
   }
 
-  let options = { folder };
+  let options = { folder ,resource_type};
   if (publicId) {
     options.public_id = publicId;
   }

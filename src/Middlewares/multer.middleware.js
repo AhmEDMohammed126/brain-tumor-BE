@@ -7,7 +7,7 @@ import { nanoid } from "nanoid";
 import { ErrorClass, extensions } from "../Utils/index.js";
 
 export const multerMiddleware = ({
-  filePath = "general",
+  filePath = "brainTumor",
   allowedExtensions = extensions.Images,
 }) => {
   // disk storage engine
