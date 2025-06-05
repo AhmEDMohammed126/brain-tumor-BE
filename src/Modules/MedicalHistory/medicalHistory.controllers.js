@@ -436,8 +436,3 @@ export const addToMedicalHistory = async (req, res, next) => {
         data: updatedHistory
     });
 };
-
-
-
-
-
