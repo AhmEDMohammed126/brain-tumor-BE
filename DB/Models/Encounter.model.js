@@ -28,6 +28,12 @@ const encounterSchema = new Schema({
             },
         },
     ],
+    weight: {
+            type: Number,
+    },
+    height: {
+            type: Number,
+    },
     complaint: {
         type: String,
     },
