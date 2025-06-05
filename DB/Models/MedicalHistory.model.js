@@ -8,6 +8,24 @@ const medicalHistorySchema = new Schema({
         ref: "Patient",
         required: true,
     },
+    weight: {
+        value: { type: Number, required: true },
+        addedById: { type: Schema.Types.ObjectId, required: true, refPath: "weight.addedByRole" },
+        addedByRole: { type: String, enum: ["Doctor", "Patient"], required: true },
+        dateAdded: { type: Date, default: Date.now }
+    },
+    height: {
+        value: { type: Number, required: true },
+        addedById: { type: Schema.Types.ObjectId, required: true, refPath: "height.addedByRole" },
+        addedByRole: { type: String, enum: ["Doctor", "Patient"], required: true },
+        dateAdded: { type: Date, default: Date.now }
+    },
+    bloodType: {
+        value: { type: String, enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"], required: true },
+        addedById: { type: Schema.Types.ObjectId, required: true, refPath: "bloodType.addedByRole" },
+        addedByRole: { type: String, enum: ["Doctor", "Patient"], required: true },
+        dateAdded: { type: Date, default: Date.now }
+    },
     allergy: [{
         addedById: { type: Schema.Types.ObjectId, required: true, refPath: "allergy.addedByRole" },
         addedByRole: { type: String, enum: ["Doctor", "Patient"], required: true },
