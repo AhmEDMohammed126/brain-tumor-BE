@@ -6,6 +6,8 @@ export const createEncounterSchema = {
         patientId: generalRules._id.required(),
         appointmentId: generalRules._id.required(),
         complaint: Joi.string().optional(),
+        weight: Joi.number().min(0).max(300).optional(),
+        height: Joi.number().min(0).max(300).optional(),
         diagnosis: Joi.array().items(
             Joi.object({
             diagnoseName: Joi.string().optional(),
@@ -37,7 +39,7 @@ export const getEncounterSchema={
 
 export const updateEncounterSchema={
     params:Joi.object({
-        encounterId:generalRules._id.required(),
+        encounterId:generalRules._id.required(), 
     }),
     body:Joi.object({
         diagnosis: Joi.array().items(
