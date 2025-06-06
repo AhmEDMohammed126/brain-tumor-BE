@@ -197,6 +197,8 @@ export const getEncounter = async (req, res, next) => {
             patient: encounter.patientId,
             doctor: encounter.doctorId,
             appointmentId: encounter.appointmentId,
+            weight: encounter.weight,
+            height: encounter.height,
             createdAt: encounter.createdAt,
             updatedAt: encounter.updatedAt
         };
