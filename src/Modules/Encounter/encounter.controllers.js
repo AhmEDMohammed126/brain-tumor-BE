@@ -51,20 +51,21 @@ export const createEncounter = async (req, res, next) => {
     if(isEncounterExist){
         return next(new ErrorClass("Encounter already exist", 404, "You can't add encounter twice"));
     }
-
-    // Get previous weight/height from medical history
-    const medicalHistory = await MedicalHistory.findOne({ patientId }).lean();
-
-    const previousWeight = medicalHistory?.weight?.value ?? null;
-    const previousHeight = medicalHistory?.height?.value ?? null;
-
-    // --- Prepare change log with old values from medical history ---
+    //  Prepare change log with old values from medical history 
     const changeLog = {
         timestamp: new Date(),
         changedFields: [],
         oldValues: {}
     };
 
+    if(appointment.addConsent){
+        // Get previous weight/height from medical history
+        const medicalHistory = await MedicalHistory.findOne({ patientId }).lean();
+
+        const previousWeight = medicalHistory?.weight?.value ?? null;
+        const previousHeight = medicalHistory?.height?.value ?? null;
+
+    
     if (weight !== undefined && weight !== previousWeight) {
         changeLog.changedFields.push('weight');
         changeLog.oldValues.weight = previousWeight;
@@ -73,6 +74,7 @@ export const createEncounter = async (req, res, next) => {
     if (height !== undefined && height !== previousHeight) {
         changeLog.changedFields.push('height');
         changeLog.oldValues.height = previousHeight;
+    }
     }
 
     // 3. Prepare encrypted data (schema-specific)
@@ -110,24 +112,25 @@ export const createEncounter = async (req, res, next) => {
             encounterId: encounter._id,
             dateAdded: new Date()
             }
-        },
-        $set: {
-            weight: {
-            value: weight,
-            addedById: doctorId,
-            addedByRole: "Doctor",
-            dateAdded: new Date()
-            },
-            height: {
-            value: height,
-            addedById: doctorId,
-            addedByRole: "Doctor",
-            dateAdded: new Date()
-            }
         }
     };
 
     if (appointment.addConsent) {
+        updateOperation.$set = {
+            weight: {
+                value: weight,
+                addedById: doctorId,
+                addedByRole: "Doctor",
+                dateAdded: new Date()
+            },
+                height: {
+                value: height,
+                addedById: doctorId,
+                addedByRole: "Doctor",
+                dateAdded: new Date()
+                }
+            };
+
         updateOperation.$push.medication = encryptedMedications.map(med => ({
             ...med,
             addedById: doctorId,
