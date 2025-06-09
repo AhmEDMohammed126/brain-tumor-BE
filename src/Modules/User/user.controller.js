@@ -94,9 +94,9 @@ export const verifyEmail = async (req, res, next) => {
         );
     }
     // response
-    res.status(200).json({ message: "User email successfully confirmed ", admin });
+    res.status(200).json({ message: "User email successfully confirmed you can login now" });
       // response
-    res.status(200).json({ message: "User email successfully confirmed ", user });
+    res.status(200).json({ message: "User email successfully confirmed you can login now" });
 };
 
 /***
