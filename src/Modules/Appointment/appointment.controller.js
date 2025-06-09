@@ -15,8 +15,8 @@ export const bookAppointment = async (req, res, next) => {
         return next(new ErrorClass ("Clinic or doctor not found", 400,"Clinic or doctor not found"));
     }
 
-    //check if patient is already booked in this time slot
-    const patientBooked = await Appointment.findOne({ patientId, date, time });
+    //check if patient is already booked in this time slot 
+    const patientBooked = await Appointment.findOne({ patientId, date, time , status: {$ne: "cancelled"}});
     if (patientBooked) {
         return next(new ErrorClass ("You are already booked in this time slot", 400,"You are already booked in this time slot cancle the previous booking"));
     }
