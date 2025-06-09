@@ -94,8 +94,6 @@ export const registerDoctor = async(req, res,next) =>{
             .status(500)
             .json({ message: "verification email sending is failed " });
     }
-    console.log(isEmailSent);
-    
     await doctorInstance.save();
     const savedclinic=await clinic.save();
     res.status(201).json({message:"Doctor account created successfully",data:doctorInstance,savedclinic})
