@@ -94,9 +94,9 @@ export const verifyEmail = async (req, res, next) => {
         );
     }
     // response
-    res.status(200).json({ message: "User email successfully confirmed ", admin });
-      // response
-    res.status(200).json({ message: "User email successfully confirmed ", user });
+     // Redirect to your Vercel frontend login page with optional message
+    res.redirect('https://brain-tumor-frontend-five.vercel.app/login');
+    //res.status(200).json({ message: "User email successfully confirmed you can login now" });
 };
 
 /***
