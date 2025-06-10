@@ -8,7 +8,6 @@ export const routerHandler = (app) => {
     //Route handling
     app.use(cors());//to give access to frontend routes and routes that require authorization to access routes in back-end
     app.use(json());
-
     //REST-API
     app.use("/users",router.userRouter);
     app.use("/doctors",router.doctorRouter);
