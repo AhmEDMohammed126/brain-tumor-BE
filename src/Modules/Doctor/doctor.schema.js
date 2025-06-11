@@ -3,8 +3,8 @@ import { generalRules, systemRoles } from "../../Utils/index.js";
 
 export const registerDoctorSchema = {
     body:Joi.object({
-    firstName: Joi.string().min(3).max(50).required(),
-    lastName: Joi.string().min(3).max(50).required(),
+    firstName: Joi.string().min(1).max(50).required(),
+    lastName: Joi.string().min(1).max(50).required(),
     email:  generalRules.email.required(),
     password: generalRules.password.required(),
     DOB: Joi.date().required(),
@@ -48,8 +48,8 @@ export const getDoctorSchema ={
 
 export const updateDoctorSchema ={
     body:Joi.object({
-        firstName: Joi.string().min(3).max(50).optional(),
-        lastName: Joi.string().min(3).max(50).optional(),
+        firstName: Joi.string().min(1).max(50).optional(),
+        lastName: Joi.string().min(1).max(50).optional(),
         email:  generalRules.email.optional(),
         gender: Joi.string().valid('male', 'female').optional(),
         bio: Joi.string().optional(),

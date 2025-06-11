@@ -3,8 +3,8 @@ import { generalRules ,systemRoles} from "../../Utils/index.js";
 
 export const registeradminSchema ={
     body: Joi.object({
-        firstName: Joi.string().min(2).max(20).required(),
-        lastName: Joi.string().min(2).max(20).required(),
+        firstName: Joi.string().min(1).max(20).required(),
+        lastName: Joi.string().min(1).max(20).required(),
         email:  generalRules.email.required(),
         password: generalRules.password.required(),
         userType: Joi.string().valid(systemRoles.ADMIN).required(),
