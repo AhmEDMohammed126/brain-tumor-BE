@@ -57,6 +57,12 @@ export const getClinicById =async (req, res,next) =>{
 export const deleteClinic = async(req, res,next) => {
     const{id}=req.params;
     const {authUser}=req;
+    isTherAppointments=await Appointment.findOne({clinicId:id,status:"confirmed"});
+    if(isTherAppointments){
+        return next(
+            new ErrorClass("ther is appointments in this clinic", 400, "ther is appointments in this clinic")
+        )
+    }
     const clinic=await Clinic.findOneAndDelete({doctorId:authUser._id,_id:id});
     if(!clinic){
         return next(
