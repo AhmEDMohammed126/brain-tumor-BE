@@ -3,7 +3,7 @@ import { generalRules } from "../../Utils/index.js";
 
 export const addClinicSchema ={
     body: Joi.object({
-        clinicName: Joi.string().min(4).required(),
+        clinicName: Joi.string().min(1).required(),
         number: Joi.string().required(),
         workDays: Joi.array()
         .items(
@@ -39,7 +39,7 @@ export const editClinicSchema = {
         id:generalRules._id.required()
     }),
     body: Joi.object({
-        clinicName: Joi.string().min(4).optional(),
+        clinicName: Joi.string().min(1).optional(),
         number: Joi.string().optional(),
         workDays: Joi.array()
         .items(
