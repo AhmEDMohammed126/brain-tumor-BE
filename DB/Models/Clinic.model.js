@@ -26,6 +26,7 @@ const clinicSchema = new Schema({
                 "Monday",
                 "Tuesday",
                 "Wednesday",
+                "Saturday",
                 "Thursday",
                 "Friday"
                 ],

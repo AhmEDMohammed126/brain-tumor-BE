@@ -129,7 +129,7 @@ export const verifyEmail = async (req, res, next) => {
         );
     }
      // Redirect to your Vercel frontend login page with optional message
-    res.redirect('https://brain-tumor-frontend-five.vercel.app/login');
+    res.redirect('http://localhost:5000/login');
 };
 
 /**
